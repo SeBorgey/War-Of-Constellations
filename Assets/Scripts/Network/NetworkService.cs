@@ -1,8 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Network
 {
-    // Stub for Network interactions (Netcode for GameObjects)
     public class NetworkService : MonoBehaviour
     {
         public static NetworkService Instance { get; private set; }
@@ -20,16 +20,27 @@ namespace Network
             }
         }
 
+        private async void Start()
+        {
+            await NetworkConnectionManager.Instance.InitializeAsync();
+        }
+
         public void StartHost()
         {
-            Debug.Log("Starting Host...");
-            // NetworkManager.Singleton.StartHost();
+            NetworkManager.Singleton.StartHost();
+
+
+        //    await NetworkConnectionManager.Instance.CreateLobbyAndHost();
+        //}
+        //        if (GUILayout.Button("Join Lobby (Relay)"))
+        //        {
+        //            await NetworkConnectionManager.Instance.JoinLobby();
+        //
         }
 
         public void StartClient()
         {
-            Debug.Log("Starting Client...");
-            // NetworkManager.Singleton.StartClient();
+            NetworkManager.Singleton.StartClient();
         }
     }
 }
