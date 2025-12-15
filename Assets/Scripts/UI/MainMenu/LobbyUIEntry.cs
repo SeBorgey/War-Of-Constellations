@@ -11,13 +11,10 @@ namespace UI
     {
         [SerializeField] private TMP_Text lobbyNameText;
         [SerializeField] private TMP_Text playersText;
-        [SerializeField] private Selectable selectable;
         private int iD = -1;
 
-        public Selectable Selectable => selectable;
         public int ID => iD;
         public Action<int> OnSelected;
-        public Action<int> OnDeselected;
 
         public void Initialize(string name, int players, int capacity, int entryID)
         {
@@ -26,16 +23,16 @@ namespace UI
             iD = entryID;
         }
 
-        override public void OnSelect(BaseEventData eventData)
+        public override void OnPointerDown(PointerEventData eventData)
         {
-            base.OnSelect(eventData);
+            base.OnPointerDown(eventData);
             OnSelected?.Invoke(iD);
+            targetGraphic.color = Color.yellow;
         }
 
-        override public void OnDeselect(BaseEventData eventData)
+        public void Desellect()
         {
-            base.OnDeselect(eventData);
-            OnDeselected?.Invoke(iD);
+            targetGraphic.color = Color.white;
         }
 
     }

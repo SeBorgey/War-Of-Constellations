@@ -77,15 +77,9 @@ namespace UI
 
         private void OnLobbySelected(int id)
         {
+            if (selectedId >= 0) lobbies[id].Desellect();
             selectedId = id;
             joinButton.interactable = true;
-            lobbies[id].OnDeselected += OnlobbyDeselected;
-        }
-        private void OnlobbyDeselected(int id)
-        {
-            //selectedId = -1;
-            //joinButton.interactable = false;
-            lobbies[id].OnDeselected -= OnlobbyDeselected;
         }
     }
 }

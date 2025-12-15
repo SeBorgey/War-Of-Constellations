@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Network;
 
 namespace UI
 {
@@ -20,13 +21,15 @@ namespace UI
             backButton.onClick.AddListener(OnBackClicked);
         }
 
-        public void OnHostClicked()
+        public async void OnHostClicked()
         {
+            await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
             panelsManager.ActivatePanel(MainMenuPanels.HostGame);
         }
 
-        public void OnJoinClicked()
+        public async void OnJoinClicked()
         {
+            await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
             panelsManager.ActivatePanel(MainMenuPanels.JoinGame);
         }
 
