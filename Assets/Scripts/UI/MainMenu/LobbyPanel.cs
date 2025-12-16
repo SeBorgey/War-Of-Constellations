@@ -73,11 +73,13 @@ namespace UI
 
         public void OnStartClicked()
         {
+            ///////////////////////////////////////////////////////////////////////////////////////////////
             SceneManager.LoadSceneAsync(2);
         }
 
         public void OnBackClicked()
         {
+            Fader.CanvasGroup.interactable = false;
             NetworkConnectionManager.Instance.LeaveLobby();
             panelsManager.ActivatePanel(MainMenuPanels.HostGame);
         }

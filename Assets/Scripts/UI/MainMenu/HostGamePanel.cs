@@ -21,8 +21,9 @@ namespace UI
 
         public async void OnHostClicked()
         {
-            panelsManager.ActivatePanel(MainMenuPanels.Lobby);
+            Fader.CanvasGroup.interactable = false;
             await NetworkConnectionManager.Instance.CreateLobbyAndHost(lobbyNameField.text, 4);
+            panelsManager.ActivatePanel(MainMenuPanels.Lobby);
         }
 
         public void OnBackClicked()

@@ -23,12 +23,14 @@ namespace UI
 
         public async void OnHostClicked()
         {
+            Fader.CanvasGroup.interactable = false;
             await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
             panelsManager.ActivatePanel(MainMenuPanels.HostGame);
         }
 
         public async void OnJoinClicked()
         {
+            Fader.CanvasGroup.interactable = false;
             await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
             panelsManager.ActivatePanel(MainMenuPanels.JoinGame);
         }

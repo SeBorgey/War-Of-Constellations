@@ -65,6 +65,7 @@ namespace UI
 
         private async void OnJoinClicked()
         {
+            Fader.CanvasGroup.interactable = false;
             NetworkConnectionManager networkConnection = NetworkConnectionManager.Instance;
             await networkConnection.JoinLobby(networkConnection.LobbiesList[selectedId].Id);
             panelsManager.ActivatePanel(MainMenuPanels.Lobby);

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class PlayerUIEntry : Selectable
+    public class PlayerUIEntry : MonoBehaviour
     {
         [SerializeField] private TMP_Text playerNameText;
         private int iD = -1;

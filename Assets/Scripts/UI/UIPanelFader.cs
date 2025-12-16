@@ -6,6 +6,7 @@ public class UIPanelFader : MonoBehaviour
 {
     [SerializeField] private float _fadeDuration = 0.75f;
     [SerializeField] private bool _enableOnFadeIn = false;
+    public CanvasGroup CanvasGroup => _canvasGroup;
     private Coroutine _fadeCoroutine;
     private CanvasGroup _canvasGroup;
 
