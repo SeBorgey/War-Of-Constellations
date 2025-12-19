@@ -22,7 +22,8 @@ namespace UI
         public async void OnHostClicked()
         {
             Fader.CanvasGroup.interactable = false;
-            await NetworkConnectionManager.Instance.CreateLobbyAndHost(lobbyNameField.text, 4);
+            // Хардкод: только 2 игрока
+            await NetworkConnectionManager.Instance.CreateLobbyAndHost(lobbyNameField.text, 2);
             panelsManager.ActivatePanel(MainMenuPanels.Lobby);
         }
 

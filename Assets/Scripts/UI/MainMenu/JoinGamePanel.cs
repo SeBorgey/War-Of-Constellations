@@ -35,8 +35,16 @@ namespace UI
         private async void SpawnEntries()
         {
             NetworkConnectionManager networkConnection = NetworkConnectionManager.Instance;
+            if (networkConnection == null)
+            {
+                Debug.LogError("[JoinGamePanel] NetworkConnectionManager.Instance is null!");
+                return;
+            }
+
+            Debug.Log("[JoinGamePanel] Querying lobbies...");
             await networkConnection.QueryLobbies();
 
+            // Очищаем старые записи
             if (lobbies != null && lobbies.Count != 0)
             {
                 noLobbiesPanel.SetActive(false);
@@ -46,13 +54,18 @@ namespace UI
                     Destroy(entry.gameObject);
                 }
             }
-            else if (networkConnection.LobbiesList.Count == 0)
+
+            if (networkConnection.LobbiesList == null || networkConnection.LobbiesList.Count == 0)
             {
                 noLobbiesPanel.SetActive(true);
+                Debug.Log("[JoinGamePanel] No lobbies found");
                 return;
             }
 
+            noLobbiesPanel.SetActive(false);
             lobbies = new List<LobbyUIEntry>();
+
+            Debug.Log($"[JoinGamePanel] Found {networkConnection.LobbiesList.Count} lobby(ies)");
 
             foreach (Lobby lobby in networkConnection.LobbiesList)
             {
@@ -60,15 +73,41 @@ namespace UI
                 lobbies.Add(entry);
                 entry.OnSelected += OnLobbySelected;
                 entry.Initialize(lobby.Name, lobby.Players.Count, lobby.MaxPlayers, lobbies.Count - 1);
+                Debug.Log($"[JoinGamePanel] Added lobby: {lobby.Name} ({lobby.Players.Count}/{lobby.MaxPlayers})");
             }
         }
 
         private async void OnJoinClicked()
         {
-            Fader.CanvasGroup.interactable = false;
+            if (selectedId < 0 || selectedId >= lobbies.Count)
+            {
+                Debug.LogError("[JoinGamePanel] No lobby selected!");
+                return;
+            }
+
             NetworkConnectionManager networkConnection = NetworkConnectionManager.Instance;
-            await networkConnection.JoinLobby(networkConnection.LobbiesList[selectedId].Id);
-            panelsManager.ActivatePanel(MainMenuPanels.Lobby);
+            if (networkConnection == null || networkConnection.LobbiesList == null || selectedId >= networkConnection.LobbiesList.Count)
+            {
+                Debug.LogError("[JoinGamePanel] Invalid lobby selection!");
+                return;
+            }
+
+            Fader.CanvasGroup.interactable = false;
+            joinButton.interactable = false;
+
+            try
+            {
+                Debug.Log($"[JoinGamePanel] Joining lobby: {networkConnection.LobbiesList[selectedId].Name}");
+                await networkConnection.JoinLobby(networkConnection.LobbiesList[selectedId].Id);
+                Debug.Log("[JoinGamePanel] Successfully joined lobby, switching to Lobby panel");
+                panelsManager.ActivatePanel(MainMenuPanels.Lobby);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[JoinGamePanel] Failed to join lobby: {e.Message}");
+                joinButton.interactable = true;
+                Fader.CanvasGroup.interactable = true;
+            }
         }
 
         private void OnBackClicked()

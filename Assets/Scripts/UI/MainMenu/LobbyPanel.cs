@@ -13,6 +13,7 @@ namespace UI
         [SerializeField] private Button startButton;
         [SerializeField] private Button backButton;
         [SerializeField] private TMP_Text lobbyTitle;
+        [SerializeField] private TMP_Text hostIPText; // Для отображения IP хоста (опционально)
 
         [SerializeField] private Transform entriesContainer;
         [SerializeField] private PlayerUIEntry playerEntryPrefab;
@@ -42,9 +43,51 @@ namespace UI
 
         private void UpdateLobby(Lobby lobby)
         {
+            if (lobby == null) return;
+            
             lobbyTitle.text = lobby.Name + "  " + lobby.Players.Count + "/" + lobby.MaxPlayers;
             SpawnEntries(lobby.Players);
-            startButton.interactable = playerEntries.Count == 4;
+            
+            // Отображаем IP хоста для информации
+            if (hostIPText != null && connectionManager != null)
+            {
+                string hostIP = connectionManager.GetHostIPFromLobby();
+                int hostPort = connectionManager.GetHostPortFromLobby();
+                if (!string.IsNullOrEmpty(hostIP))
+                {
+                    hostIPText.text = $"Host IP: {hostIP}:{hostPort}";
+                }
+                else if (connectionManager.IsHost())
+                {
+                    // Если мы хост, показываем наш IP
+                    string localIP = NetworkIPHelper.GetLocalIPAddress();
+                    int port = NetworkIPHelper.GetDefaultPort();
+                    hostIPText.text = $"Your IP: {localIP}:{port}";
+                }
+                else
+                {
+                    hostIPText.text = "Waiting for host...";
+                }
+            }
+            
+            // Кнопка Start активна только для хоста и если есть хотя бы 1 игрок (для 2 игроков нужно 2)
+            if (connectionManager != null)
+            {
+                bool canStart = connectionManager.IsHost() && 
+                               playerEntries != null && 
+                               playerEntries.Count >= 1; // Можно начать с 1 игроком, но лучше дождаться 2
+                startButton.interactable = canStart;
+                
+                // Показываем подсказку, если не хватает игроков
+                if (connectionManager.IsHost() && playerEntries != null && playerEntries.Count < 2)
+                {
+                    Debug.Log($"[LobbyPanel] Waiting for players: {playerEntries.Count}/2");
+                }
+            }
+            else
+            {
+                startButton.interactable = false;
+            }
 
             // Автоматическое подключение клиента при обнаружении GameStarted
             if (!connectionManager.IsHost() && connectionManager.IsGameStarted())
@@ -87,25 +130,48 @@ namespace UI
 
         public async void OnStartClicked()
         {
-            if (connectionManager.IsHost())
+            if (connectionManager == null)
             {
-                // Хост: получаем IP и порт, обновляем Lobby Data, запускаем Host
-                string ip = NetworkIPHelper.GetLocalIPAddress();
-                int port = NetworkIPHelper.GetDefaultPort();
-
-                // Обновляем Lobby Data с IP:Port (на случай если они изменились)
-                await connectionManager.UpdateLobbyHostIP(ip, port);
-
-                // Устанавливаем флаг GameStarted
-                await connectionManager.UpdateLobbyGameStarted(true);
-
-                // Загружаем сцену Game, там NetworkGameManager запустит Host
-                SceneManager.LoadSceneAsync("Game");
+                Debug.LogError("[LobbyPanel] NetworkConnectionManager.Instance is null!");
+                return;
             }
-            else
+
+            // Отключаем кнопку на время обработки
+            startButton.interactable = false;
+
+            try
             {
-                // Клиент: просто загружаем сцену (подключение произойдет автоматически через UpdateLobby)
-                SceneManager.LoadSceneAsync("Game");
+                if (connectionManager.IsHost())
+                {
+                    Debug.Log("[LobbyPanel] Host starting game...");
+                    
+                    // Хост: получаем IP и порт автоматически
+                    string ip = NetworkIPHelper.GetLocalIPAddress();
+                    int port = NetworkIPHelper.GetDefaultPort();
+                    
+                    Debug.Log($"[LobbyPanel] Host IP: {ip}, Port: {port}");
+
+                    // Обновляем Lobby Data с IP:Port
+                    await connectionManager.UpdateLobbyHostIP(ip, port);
+
+                    // Устанавливаем флаг GameStarted
+                    await connectionManager.UpdateLobbyGameStarted(true);
+
+                    Debug.Log("[LobbyPanel] Loading Game scene...");
+                    // Загружаем сцену Game, там GameSceneInitializer запустит Host
+                    SceneManager.LoadSceneAsync("Game");
+                }
+                else
+                {
+                    Debug.Log("[LobbyPanel] Client loading Game scene...");
+                    // Клиент: просто загружаем сцену (подключение произойдет автоматически через UpdateLobby)
+                    SceneManager.LoadSceneAsync("Game");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[LobbyPanel] Error starting game: {e.Message}");
+                startButton.interactable = true; // Включаем кнопку обратно при ошибке
             }
         }
 
