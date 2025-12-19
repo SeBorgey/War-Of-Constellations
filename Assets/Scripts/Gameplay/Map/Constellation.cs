@@ -6,37 +6,57 @@ namespace Gameplay.Map
     public class Constellation : MonoBehaviour
     {
         [Header("Constellation Data")]
+        [SerializeField] private int _id;
         [SerializeField] private List<Star> _stars = new List<Star>();
         [SerializeField] private Vector2 _center;
-        [SerializeField] private int _owner = -1; // -1 for no owner
-        [SerializeField] private int _constellationId;
-
-        private bool _hasOwner => _owner != -1;
+        [SerializeField] private List<int> _neighborIds = new List<int>();
 
         // Getters
+        public int Id => _id;
         public Vector2 Center => _center;
-        public int Owner => _owner;
-        public bool HasOwner => _hasOwner;
-        public int ConstellationId => _constellationId;
         public List<Star> Stars => new List<Star>(_stars); // Return copy for safety
+        public List<int> NeighborIds => new List<int>(_neighborIds);
+
+        /// <summary>
+        /// Returns the owner state of the constellation.
+        /// Blue/Red if ALL stars are owned by that player, White otherwise.
+        /// </summary>
+        public StarState GetOwner()
+        {
+            if (_stars.Count == 0) return StarState.White;
+
+            StarState firstState = _stars[0].State;
+
+            // If first star is neutral, constellation is neutral
+            if (firstState == StarState.White) return StarState.White;
+
+            // Check if all stars have the same state
+            foreach (var star in _stars)
+            {
+                if (star.State != firstState)
+                    return StarState.White;
+            }
+
+            return firstState;
+        }
 
         // Setters
+        public void SetId(int id)
+        {
+            _id = id;
+        }
+
         public void SetCenter(Vector2 center)
         {
             _center = center;
         }
 
-        public void SetOwner(int ownerId)
-        {
-            _owner = ownerId;
-        }
-
         public void Initialize(int id, Vector2 center)
         {
-            _constellationId = id;
+            _id = id;
             _center = center;
-            _owner = -1;
             _stars.Clear();
+            _neighborIds.Clear();
         }
 
         public void AddStar(Star star)
@@ -44,6 +64,15 @@ namespace Gameplay.Map
             if (!_stars.Contains(star))
             {
                 _stars.Add(star);
+                star.SetConstellationId(_id);
+            }
+        }
+
+        public void AddNeighborId(int neighborId)
+        {
+            if (neighborId != _id && !_neighborIds.Contains(neighborId))
+            {
+                _neighborIds.Add(neighborId);
             }
         }
 
@@ -55,46 +84,6 @@ namespace Gameplay.Map
         public List<Star> GetStars()
         {
             return new List<Star>(_stars);
-        }
-
-        public bool IsFullyOwnedBy(int playerId)
-        {
-            if (_stars.Count == 0) return false;
-
-            foreach (var star in _stars)
-            {
-                if (star.Owner != playerId)
-                    return false;
-            }
-            return true;
-        }
-
-        public void UpdateOwnership()
-        {
-            // Check if all stars belong to the same player
-            if (_stars.Count == 0) return;
-
-            int firstOwner = _stars[0].Owner;
-            if (firstOwner == -1) return;
-
-            bool allSameOwner = true;
-            foreach (var star in _stars)
-            {
-                if (star.Owner != firstOwner)
-                {
-                    allSameOwner = false;
-                    break;
-                }
-            }
-
-            if (allSameOwner)
-            {
-                SetOwner(firstOwner);
-            }
-            else
-            {
-                SetOwner(-1);
-            }
         }
     }
 }
