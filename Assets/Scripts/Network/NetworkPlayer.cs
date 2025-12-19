@@ -2,6 +2,7 @@ using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using UnityEngine;
+using Gameplay.Map;
 
 namespace Network
 {
@@ -19,8 +20,13 @@ namespace Network
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server);
 
+        private NetworkVariable<int> _playerColor = new NetworkVariable<int>(
+            readPerm: NetworkVariableReadPermission.Everyone,
+            writePerm: NetworkVariableWritePermission.Server);
+
         public string PlayerName => _playerName.Value;
         public ulong ClientId => _clientId.Value;
+        public Player PlayerColor => (Player)_playerColor.Value;
 
         public override void OnNetworkSpawn()
         {
@@ -33,22 +39,36 @@ namespace Network
                 _playerName.Value = playerName;
                 _clientId.Value = OwnerClientId;
 
-                Debug.Log($"NetworkPlayer spawned for client {OwnerClientId} with name: {playerName}");
+                // Определяем цвет игрока: Host = Blue, Client = Red
+                Player playerColor = Unity.Netcode.NetworkManager.Singleton.IsHost && OwnerClientId == Unity.Netcode.NetworkManager.Singleton.LocalClientId
+                    ? Player.Blue
+                    : Player.Red;
+                
+                _playerColor.Value = (int)playerColor;
+
+                Debug.Log($"[NetworkPlayer] Spawned for client {OwnerClientId} with name: {playerName}, color: {playerColor}");
             }
 
-            // Подписываемся на изменения имени
+            // Подписываемся на изменения
             _playerName.OnValueChanged += OnPlayerNameChanged;
+            _playerColor.OnValueChanged += OnPlayerColorChanged;
         }
 
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
             _playerName.OnValueChanged -= OnPlayerNameChanged;
+            _playerColor.OnValueChanged -= OnPlayerColorChanged;
         }
 
         private void OnPlayerNameChanged(string oldName, string newName)
         {
-            Debug.Log($"Player name changed from {oldName} to {newName}");
+            Debug.Log($"[NetworkPlayer] Player name changed from {oldName} to {newName}");
+        }
+
+        private void OnPlayerColorChanged(int oldColor, int newColor)
+        {
+            Debug.Log($"[NetworkPlayer] Player color changed from {(Player)oldColor} to {(Player)newColor}");
         }
 
         private string GetPlayerNameFromLobby()

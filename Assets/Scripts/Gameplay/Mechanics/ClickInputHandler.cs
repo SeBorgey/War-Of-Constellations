@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using Gameplay.Map;
 
@@ -8,8 +9,23 @@ namespace Gameplay.Mechanics
         [SerializeField] private PlayerController _localPlayer;
         [SerializeField] private Camera _mainCamera;
 
+        private void Start()
+        {
+            if (_localPlayer == null)
+            {
+                _localPlayer = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+            }
+        }
+
         private void Update()
         {
+            // Проверяем, что клиент подключен к сети
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager != null && !networkManager.IsClient)
+            {
+                return; // Не обрабатываем клики, если не подключены к сети
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 HandleClick();
@@ -20,10 +36,14 @@ namespace Gameplay.Mechanics
         {
             if (_mainCamera == null) _mainCamera = Camera.main;
 
-            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            // Используем 2D Raycast для клика по узлам
+            Vector3 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0;
+
+            Collider2D hit = Physics2D.OverlapPoint(mousePos);
+            if (hit != null)
             {
-                var star = hit.collider.GetComponent<Star>();
+                var star = hit.GetComponent<Star>();
                 if (star != null)
                 {
                     OnStarClicked(star);
@@ -33,16 +53,26 @@ namespace Gameplay.Mechanics
 
         private void OnStarClicked(Star star)
         {
-            if (_localPlayer == null) return;
+            if (_localPlayer == null)
+            {
+                Debug.LogWarning("[ClickInputHandler] LocalPlayer is null!");
+                return;
+            }
+
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager == null || !networkManager.IsClient)
+            {
+                Debug.LogWarning("[ClickInputHandler] Not connected to network!");
+                return;
+            }
 
             int power = _localPlayer.GetClickPower();
             Player player = _localPlayer.PlayerColor;
 
-            // TODO: Send input to server/host
-            Debug.Log($"Player {player} clicked on Star {star.Id} at {star.Coordinates} with power {power}");
+            Debug.Log($"[ClickInputHandler] Player {player} clicked on Star {star.Id} at {star.Coordinates} with power {power}");
 
-            // For now (direct interaction stub):
-            // star.ApplyDamage(player, power);
+            // Отправляем клик на сервер через ServerRpc
+            star.ClickStarServerRpc(player, power);
         }
     }
 }

@@ -3,12 +3,22 @@ using Network;
 using Unity.Netcode;
 using UnityEngine;
 using TMPro;
+using Gameplay.Mechanics;
+using Gameplay.Map;
 
 namespace UI
 {
     public class GameplayHUD : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI _goldText;
+        [Header("Gold Display")]
+        [SerializeField] private TextMeshProUGUI _goldText; // Общее поле (можно использовать для комбинированного отображения)
+        [SerializeField] private TextMeshProUGUI _blueGoldText; // Золото Blue игрока
+        [SerializeField] private TextMeshProUGUI _redGoldText; // Золото Red игрока
+        
+        [Header("Player Info")]
+        [SerializeField] private TextMeshProUGUI _playerColorText; // Опционально: для отображения цвета игрока
+        
+        [Header("Network Info")]
         [SerializeField] private Transform _playersListContainer;
         [SerializeField] private GameObject _playerEntryPrefab;
         [SerializeField] private TextMeshProUGUI _connectionStatusText;
@@ -16,11 +26,15 @@ namespace UI
         private Dictionary<ulong, GameObject> _playerEntries = new Dictionary<ulong, GameObject>();
         private NetworkGameManager _networkGameManager;
         private Network.NetworkConnectionManager _connectionManager;
+        private PlayerController _localPlayerController;
+        private PlayerController _bluePlayerController;
+        private PlayerController _redPlayerController;
 
         private void Start()
         {
             UpdateGold(0);
             InitializeNetworkTracking();
+            InitializePlayerController();
         }
 
         private void OnEnable()
@@ -34,6 +48,115 @@ namespace UI
         private void OnDisable()
         {
             UnsubscribeFromNetworkEvents();
+            UnsubscribeFromPlayerController();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromPlayerController();
+        }
+
+        private void InitializePlayerController()
+        {
+            // Ищем все PlayerController в сцене
+            PlayerController[] allControllers = UnityEngine.Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            
+            foreach (var controller in allControllers)
+            {
+                if (controller.PlayerColor == Player.Blue)
+                {
+                    _bluePlayerController = controller;
+                    _bluePlayerController.OnGoldChanged += OnBlueGoldChanged;
+                    UpdateBlueGold(_bluePlayerController.Gold);
+                    Debug.Log("[GameplayHUD] Found Blue PlayerController");
+                }
+                else if (controller.PlayerColor == Player.Red)
+                {
+                    _redPlayerController = controller;
+                    _redPlayerController.OnGoldChanged += OnRedGoldChanged;
+                    UpdateRedGold(_redPlayerController.Gold);
+                    Debug.Log("[GameplayHUD] Found Red PlayerController");
+                }
+            }
+
+            // Определяем локального игрока
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager != null && networkManager.IsClient)
+            {
+                _localPlayerController = networkManager.IsHost ? _bluePlayerController : _redPlayerController;
+                
+                if (_localPlayerController != null)
+                {
+                    UpdatePlayerColor(_localPlayerController.PlayerColor);
+                    Debug.Log($"[GameplayHUD] Local player: {_localPlayerController.PlayerColor}");
+                }
+            }
+
+            // Если есть только одно поле _goldText, используем его для комбинированного отображения
+            if (_goldText != null && _blueGoldText == null && _redGoldText == null)
+            {
+                UpdateCombinedGold();
+            }
+        }
+
+        private void UnsubscribeFromPlayerController()
+        {
+            if (_bluePlayerController != null)
+            {
+                _bluePlayerController.OnGoldChanged -= OnBlueGoldChanged;
+            }
+            if (_redPlayerController != null)
+            {
+                _redPlayerController.OnGoldChanged -= OnRedGoldChanged;
+            }
+        }
+
+        private void OnBlueGoldChanged(int newGold)
+        {
+            UpdateBlueGold(newGold);
+            UpdateCombinedGold(); // Обновляем комбинированное поле, если используется
+        }
+
+        private void OnRedGoldChanged(int newGold)
+        {
+            UpdateRedGold(newGold);
+            UpdateCombinedGold(); // Обновляем комбинированное поле, если используется
+        }
+
+        private void UpdateBlueGold(int gold)
+        {
+            if (_blueGoldText != null)
+            {
+                _blueGoldText.text = $"Blue: {gold}";
+            }
+        }
+
+        private void UpdateRedGold(int gold)
+        {
+            if (_redGoldText != null)
+            {
+                _redGoldText.text = $"Red: {gold}";
+            }
+        }
+
+        private void UpdateCombinedGold()
+        {
+            // Если используется одно поле _goldText, показываем оба значения
+            if (_goldText != null)
+            {
+                int blueGold = _bluePlayerController != null ? _bluePlayerController.Gold : 0;
+                int redGold = _redPlayerController != null ? _redPlayerController.Gold : 0;
+                _goldText.text = $"Blue: {blueGold} | Red: {redGold}";
+            }
+        }
+
+        private void UpdatePlayerColor(Player playerColor)
+        {
+            if (_playerColorText != null)
+            {
+                string colorName = playerColor == Player.Blue ? "Blue" : "Red";
+                _playerColorText.text = $"Player: {colorName}";
+            }
         }
 
         private void InitializeNetworkTracking()
@@ -245,14 +368,27 @@ namespace UI
             string statusText = GetStatusText();
             GUI.Label(new Rect(10, 10, 300, 20), statusText);
 
+            // Показываем золото обоих игроков и цвет локального игрока
+            int blueGold = _bluePlayerController != null ? _bluePlayerController.Gold : 0;
+            int redGold = _redPlayerController != null ? _redPlayerController.Gold : 0;
+            GUI.Label(new Rect(10, 35, 300, 20), $"Blue Gold: {blueGold}");
+            GUI.Label(new Rect(10, 60, 300, 20), $"Red Gold: {redGold}");
+            
+            if (_localPlayerController != null)
+            {
+                string colorText = $"You: {_localPlayerController.PlayerColor}";
+                GUI.Label(new Rect(10, 85, 300, 20), colorText);
+            }
+
             // Показываем количество подключенных игроков
             if (_networkGameManager != null)
             {
                 int playerCount = _playerEntries.Count;
-                GUI.Label(new Rect(10, 35, 300, 20), $"Players Connected: {playerCount}");
+                int yOffset = 110;
+                GUI.Label(new Rect(10, yOffset, 300, 20), $"Players Connected: {playerCount}");
+                yOffset += 25;
 
                 // Показываем список игроков
-                int yOffset = 60;
                 foreach (var kvp in _playerEntries)
                 {
                     ulong clientId = kvp.Key;
@@ -267,7 +403,9 @@ namespace UI
 
         public void UpdateGold(int newAmount)
         {
-            if (_goldText != null)
+            // Устаревший метод для обратной совместимости
+            // Используется только если нет отдельных полей для Blue/Red
+            if (_goldText != null && _blueGoldText == null && _redGoldText == null)
             {
                 _goldText.text = $"Gold: {newAmount}";
             }
