@@ -9,7 +9,7 @@ namespace Gameplay.Mechanics
     public class Bonus
     {
         [Header("Bonus Info")]
-        public string name;
+        public string bonusName;
         public string description;
         public int cost;
         public int maxLevel = 5;
@@ -47,11 +47,14 @@ namespace Gameplay.Mechanics
     {
         public int powerIncreasePerLevel = 1;
 
-        public ClickPowerBonus()
+        public void Initialize()
         {
-            name = "Click Power";
-            description = "Увеличивает силу клика";
-            cost = 10;
+            if (string.IsNullOrEmpty(bonusName))
+            {
+                bonusName = "Click Power";
+                description = "Увеличивает силу клика";
+                cost = 10;
+            }
         }
 
         public override void Apply(PlayerController playerController)
@@ -73,11 +76,14 @@ namespace Gameplay.Mechanics
     {
         public float goldMultiplierPerLevel = 0.2f; // +20% за уровень
 
-        public GoldGenerationBonus()
+        public void Initialize()
         {
-            name = "Gold Generation";
-            description = "Увеличивает генерацию золота";
-            cost = 15;
+            if (string.IsNullOrEmpty(bonusName))
+            {
+                bonusName = "Gold Generation";
+                description = "Увеличивает генерацию золота";
+                cost = 15;
+            }
         }
 
         public override void Apply(PlayerController playerController)

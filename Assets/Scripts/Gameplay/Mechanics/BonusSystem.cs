@@ -10,8 +10,32 @@ namespace Gameplay.Mechanics
     public class BonusSystem : NetworkBehaviour
     {
         [Header("Bonuses")]
-        [SerializeField] private ClickPowerBonus _clickPowerBonus = new ClickPowerBonus();
-        [SerializeField] private GoldGenerationBonus _goldGenerationBonus = new GoldGenerationBonus();
+        [SerializeField] private ClickPowerBonus _clickPowerBonus;
+        [SerializeField] private GoldGenerationBonus _goldGenerationBonus;
+
+        private void Awake()
+        {
+            // Инициализируем бонусы, если они не установлены в Inspector
+            if (_clickPowerBonus == null)
+            {
+                _clickPowerBonus = new ClickPowerBonus();
+                _clickPowerBonus.Initialize();
+            }
+            else
+            {
+                _clickPowerBonus.Initialize();
+            }
+            
+            if (_goldGenerationBonus == null)
+            {
+                _goldGenerationBonus = new GoldGenerationBonus();
+                _goldGenerationBonus.Initialize();
+            }
+            else
+            {
+                _goldGenerationBonus.Initialize();
+            }
+        }
 
         private PlayerController _playerController;
 
@@ -66,7 +90,7 @@ namespace Gameplay.Mechanics
 
             if (!bonus.CanPurchase(_playerController.Gold))
             {
-                Debug.LogWarning($"[BonusSystem] Cannot purchase bonus {bonus.name}!");
+                Debug.LogWarning($"[BonusSystem] Cannot purchase bonus {bonus.bonusName}!");
                 return;
             }
 
@@ -74,7 +98,7 @@ namespace Gameplay.Mechanics
             _playerController.AddGold(-cost);
             bonus.currentLevel++;
             
-            Debug.Log($"[BonusSystem] Purchased {bonus.name} level {bonus.currentLevel} for {cost} gold");
+            Debug.Log($"[BonusSystem] Purchased {bonus.bonusName} level {bonus.currentLevel} for {cost} gold");
             
             // Уведомляем клиентов об обновлении
             UpdateBonusesClientRpc(bonusType, bonus.currentLevel);

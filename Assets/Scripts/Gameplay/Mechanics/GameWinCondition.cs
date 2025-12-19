@@ -24,7 +24,7 @@ namespace Gameplay.Mechanics
         {
             if (_gameMap == null)
             {
-                _gameMap = FindObjectOfType<GameMap>();
+                _gameMap = UnityEngine.Object.FindFirstObjectByType<GameMap>();
             }
         }
 

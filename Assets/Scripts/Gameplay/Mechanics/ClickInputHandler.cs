@@ -13,7 +13,7 @@ namespace Gameplay.Mechanics
         {
             if (_localPlayer == null)
             {
-                _localPlayer = FindObjectOfType<PlayerController>();
+                _localPlayer = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
             }
         }
 

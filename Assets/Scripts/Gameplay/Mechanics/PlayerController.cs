@@ -58,7 +58,7 @@ namespace Gameplay.Mechanics
         {
             if (_gameMap == null)
             {
-                _gameMap = FindObjectOfType<GameMap>();
+                _gameMap = UnityEngine.Object.FindFirstObjectByType<GameMap>();
             }
 
             if (_bonusSystem == null)
@@ -83,7 +83,7 @@ namespace Gameplay.Mechanics
             if (networkManager != null && networkManager.IsClient)
             {
                 // Пытаемся найти NetworkPlayer для определения цвета
-                NetworkPlayer[] networkPlayers = FindObjectsOfType<NetworkPlayer>();
+                Network.NetworkPlayer[] networkPlayers = UnityEngine.Object.FindObjectsByType<Network.NetworkPlayer>(FindObjectsSortMode.None);
                 foreach (var np in networkPlayers)
                 {
                     if (np.IsOwner)
@@ -121,7 +121,7 @@ namespace Gameplay.Mechanics
         {
             if (_gameMap == null)
             {
-                _gameMap = FindObjectOfType<GameMap>();
+                _gameMap = UnityEngine.Object.FindFirstObjectByType<GameMap>();
             }
 
             if (_gameMap == null)
