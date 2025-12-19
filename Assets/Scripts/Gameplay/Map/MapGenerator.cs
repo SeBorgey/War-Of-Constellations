@@ -29,6 +29,7 @@ namespace Gameplay.Map
 
         private MapComplexityConfig _config;
         private List<Vector2> _constellationCenters = new List<Vector2>();
+        private int _nextStarId;
 
         public void GenerateMap()
         {
@@ -41,12 +42,16 @@ namespace Gameplay.Map
             _gameMap?.Clear();
 
             _constellationCenters.Clear();
+            _nextStarId = 0;
 
             // Step 1: Generate constellation centers
             GenerateConstellationCenters();
 
             // Step 2: Generate stars for each constellation
             GenerateStarsForConstellations();
+
+            // Step 3: Compute constellation neighbors using Delaunay triangulation
+            _gameMap?.ComputeConstellationNeighbors();
 
             Debug.Log($"Map generation complete! Created {_gameMap.Size()} constellations.");
         }
@@ -217,9 +222,10 @@ namespace Gameplay.Map
                 star = starObj.AddComponent<Star>();
             }
 
-            // Initialize star with random initial value
-            float initialValue = Random.Range(10f, 100f);
-            star.Initialize(position, size, initialValue);
+            // Generate unique star ID and random HP (1-20, uniform distribution)
+            int starId = _nextStarId++;
+            int hp = Random.Range(1, 21);
+            star.Initialize(starId, position, size, hp);
 
             constellation.AddStar(star);
             starPositions.Add(position);
