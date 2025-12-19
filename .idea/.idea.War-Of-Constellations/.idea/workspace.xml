@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8a448de-5b47-48b6-806f-fa994a702e3a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Game.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Game.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Gameplay/Map/MapController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Gameplay/Map/MapController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Gameplay/Map/Star.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Gameplay/Map/Star.cs" afterDir="false" />
-    </list>
+    <list default="true" id="c8a448de-5b47-48b6-806f-fa994a702e3a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -125,7 +121,7 @@
       <workItem from="1766177259533" duration="317000" />
       <workItem from="1766177612733" duration="237000" />
       <workItem from="1766177926517" duration="72000" />
-      <workItem from="1766178050168" duration="3957000" />
+      <workItem from="1766178050168" duration="4588000" />
     </task>
     <servers />
   </component>

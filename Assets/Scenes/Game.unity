@@ -571,7 +571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mapGenerator: {fileID: 843284296}
-  _mapVisualizer: {fileID: 2099146825}
+  _mapVisualizer: {fileID: 2099146827}
 --- !u!4 &1374748211
 Transform:
   m_ObjectHideFlags: 0
@@ -760,7 +760,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2099146826}
-  - component: {fileID: 2099146825}
+  - component: {fileID: 2099146827}
   m_Layer: 0
   m_Name: MapVisualization
   m_TagString: Untagged
@@ -768,22 +768,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2099146825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2099146824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52fcccd83398f1f43bf1c4a92b597bc0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gameMap: {fileID: 1928740792}
-  _settings: {fileID: 11400000, guid: 1008f0514ed0c3b4cab1940483781ac1, type: 2}
-  _constellationEdgesContainer: {fileID: 0}
-  _mapEdgesContainer: {fileID: 0}
 --- !u!4 &2099146826
 Transform:
   m_ObjectHideFlags: 0
@@ -799,6 +783,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2099146827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099146824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf1b31070ddca876958367e37323ffd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _gameMap: {fileID: 1928740792}
+  _settings: {fileID: 11400000, guid: 3c6c955fd1105344483b514867c71b7b, type: 2}
+  _constellationEdgesContainer: {fileID: 0}
+  _mapEdgesContainer: {fileID: 0}
 --- !u!1001 &1278066490410545217
 PrefabInstance:
   m_ObjectHideFlags: 0

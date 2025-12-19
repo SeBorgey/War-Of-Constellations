@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4461f959fc0d92a488c94e0fbc8ef055, type: 3}
-  m_Name: MapVisualizationSettings_Default
+  m_Script: {fileID: 11500000, guid: d7e297603b4bb44238f1aafcbdacefec, type: 3}
+  m_Name: MapVisualizationSettings
   m_EditorClassIdentifier: 
   neutralStarColor: {r: 1, g: 1, b: 1, a: 1}
   blueStarColor: {r: 0.3, g: 0.5, b: 1, a: 1}
@@ -27,4 +27,4 @@ MonoBehaviour:
   constellationEdgeWidth: 0.5
   mapEdgeColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.2}
   mapEdgeWidth: 0.3
-  starSprite: {fileID: 21300000, guid: 93f8abb6df8f9f348910ec6328660560, type: 3}
+  starSprite: {fileID: 0}
