@@ -65,34 +65,11 @@ namespace Gameplay.Map
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            
-            // Подписываемся на изменения NetworkVariable для обновления визуализации
-            _hp.OnValueChanged += OnHPChanged;
-            _blueDamage.OnValueChanged += OnDamageChanged;
-            _redDamage.OnValueChanged += OnDamageChanged;
-            
-            // Обновляем визуализацию при спавне
-            UpdateVisuals();
         }
 
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
-            
-            // Отписываемся от событий
-            _hp.OnValueChanged -= OnHPChanged;
-            _blueDamage.OnValueChanged -= OnDamageChanged;
-            _redDamage.OnValueChanged -= OnDamageChanged;
-        }
-
-        private void OnHPChanged(int oldValue, int newValue)
-        {
-            UpdateVisuals();
-        }
-
-        private void OnDamageChanged(int oldValue, int newValue)
-        {
-            UpdateVisuals();
         }
 
         // Setters
@@ -187,7 +164,6 @@ namespace Gameplay.Map
                 }
             }
 
-            // UpdateVisuals будет вызван автоматически через OnDamageChanged
         }
 
         /// <summary>
@@ -204,64 +180,6 @@ namespace Gameplay.Map
 
             Debug.Log($"[Star] Server received click on Star {_id} from {player} with power {power}");
             ApplyDamage(player, power);
-        }
-
-        private void UpdateVisuals()
-        {
-            // Обновляем цвет в зависимости от состояния
-            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                Color targetColor;
-                switch (State)
-                {
-                    case StarState.Blue:
-                        targetColor = new Color(0.3f, 0.5f, 1f); // Яркий синий
-                        break;
-                    case StarState.Red:
-                        targetColor = new Color(1f, 0.3f, 0.3f); // Яркий красный
-                        break;
-                    case StarState.White:
-                    default:
-                        // Белый с оттенком в зависимости от прогресса захвата
-                        float blueProgress = _hp.Value > 0 ? (float)_blueDamage.Value / _hp.Value : 0f;
-                        float redProgress = _hp.Value > 0 ? (float)_redDamage.Value / _hp.Value : 0f;
-                        
-                        if (blueProgress > redProgress)
-                        {
-                            // Оттенок синего
-                            targetColor = Color.Lerp(Color.white, new Color(0.7f, 0.8f, 1f), blueProgress);
-                        }
-                        else if (redProgress > blueProgress)
-                        {
-                            // Оттенок красного
-                            targetColor = Color.Lerp(Color.white, new Color(1f, 0.7f, 0.7f), redProgress);
-                        }
-                        else
-                        {
-                            targetColor = Color.white;
-                        }
-                        break;
-                }
-                
-                spriteRenderer.color = targetColor;
-            }
-
-            // Обновляем размер в зависимости от прогресса захвата (визуальная обратная связь)
-            float captureProgress = GetCaptureProgress();
-            float baseScale = 0.5f + (_size * 0.2f);
-            float pulseScale = 1f + Mathf.Sin(Time.time * 2f) * 0.1f * captureProgress;
-            transform.localScale = Vector3.one * baseScale * pulseScale;
-        }
-
-        private float GetCaptureProgress()
-        {
-            if (_hp.Value <= 0) return 0f;
-            
-            float blueProgress = (float)_blueDamage.Value / _hp.Value;
-            float redProgress = (float)_redDamage.Value / _hp.Value;
-            
-            return Mathf.Max(blueProgress, redProgress);
         }
 
         private void UpdateScale()
