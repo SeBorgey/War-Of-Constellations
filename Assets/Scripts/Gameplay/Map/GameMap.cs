@@ -54,6 +54,21 @@ namespace Gameplay.Map
             return null;
         }
 
+        public Star GetStarById(int id)
+        {
+            foreach (var constellation in _constellations)
+            {
+                foreach (var star in constellation.GetStars())
+                {
+                    if (star.Id == id)
+                    {
+                        return star;
+                    }
+                }
+            }
+            return null;
+        }
+
         public Star FindClosestStar(Vector2 position)
         {
             Star closest = null;
@@ -135,7 +150,7 @@ namespace Gameplay.Map
 
                 foreach (var (neighbor, _) in sorted)
                 {
-                    constellation.AddNeighbor(neighbor);
+                    constellation.AddNeighborId(neighbor.Id);
                 }
             }
         }
