@@ -43,6 +43,7 @@ namespace Gameplay.Map
         {
             get
             {
+                if (_hp <= 0) return StarState.White;
                 if (_blueDamage >= _hp)
                     return StarState.Blue;
                 if (_redDamage >= _hp)
