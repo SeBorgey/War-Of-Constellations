@@ -11,11 +11,18 @@ namespace Gameplay.Map
     }
 
     [System.Serializable]
-    public class MapComplexityConfig(MapComplexity complexity, int constellations, Color color)
+    public class MapComplexityConfig
     {
-        public MapComplexity complexity = complexity;
-        public int constellationsCount = constellations;
-        public Color labelColor = color;
+        public MapComplexity complexity;
+        public int constellationsCount;
+        public Color labelColor;
+
+        public MapComplexityConfig(MapComplexity complexity, int constellations, Color color)
+        {
+            this.complexity = complexity;
+            this.constellationsCount = constellations;
+            this.labelColor = color;
+        }
 
         public static MapComplexityConfig GetConfig(MapComplexity complexity)
         {

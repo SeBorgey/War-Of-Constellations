@@ -38,10 +38,7 @@ namespace Gameplay.Map
             _config = MapComplexityConfig.GetConfig(_mapComplexity);
 
             // Clear existing map if any
-            if (_gameMap != null)
-            {
-                _gameMap.Clear();
-            }
+            _gameMap?.Clear();
 
             _constellationCenters.Clear();
 
@@ -126,10 +123,7 @@ namespace Gameplay.Map
                 }
 
                 Constellation constellation = constellationObj.GetComponent<Constellation>();
-                if (constellation == null)
-                {
-                    constellation = constellationObj.AddComponent<Constellation>();
-                }
+                constellation ??= constellationObj.AddComponent<Constellation>();
 
                 constellation.Initialize(i, center);
 
@@ -202,10 +196,7 @@ namespace Gameplay.Map
                 }
 
                 // Add constellation to map
-                if (_gameMap != null)
-                {
-                    _gameMap.AddConstellation(constellation);
-                }
+                _gameMap?.AddConstellation(constellation);
             }
         }
 

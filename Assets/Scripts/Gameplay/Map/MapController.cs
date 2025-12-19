@@ -8,10 +8,7 @@ namespace Gameplay.Map
 
         private void Start()
         {
-            if (_mapGenerator != null)
-            {
-                _mapGenerator.GenerateMap();
-            }
+            _mapGenerator?.GenerateMap();
         }
     }
 }

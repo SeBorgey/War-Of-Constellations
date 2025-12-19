@@ -10,7 +10,7 @@ namespace Gameplay.Map
 
         public List<Constellation> GetConstellations()
         {
-            return [.. _constellations];
+            return new List<Constellation>(_constellations);
         }
 
         public void AddConstellation(Constellation constellation)
