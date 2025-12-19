@@ -64,10 +64,18 @@ namespace Network
             {
                 Player player = GetPlayer();
 
+                // Получить локальный IP и порт
+                string localIP = NetworkIPHelper.GetLocalIPAddress();
+                int port = NetworkIPHelper.GetDefaultPort();
+
+                // Сохранить IP:Port в Lobby Data
                 CreateLobbyOptions options = new CreateLobbyOptions
                 {
                     Player = player,
-                    Data = new Dictionary<string, DataObject> {}
+                    Data = new Dictionary<string, DataObject> {
+                        { "HostIP", new DataObject(DataObject.VisibilityOptions.Public, localIP) },
+                        { "HostPort", new DataObject(DataObject.VisibilityOptions.Public, port.ToString()) }
+                    }
                 };
 
                 var lobby = await LobbyService.Instance.CreateLobbyAsync(name, maxPlsyers, options);
@@ -77,7 +85,7 @@ namespace Network
                 // Heartbeat Loop (Simple Implementation)
                 StartCoroutine(HeartbeatLobby(lobby.Id, 15f));
 
-                Debug.Log($"Host started. Lobby Code: {lobby.LobbyCode}.");
+                Debug.Log($"Host started. Lobby Code: {lobby.LobbyCode}. IP: {localIP}:{port}");
             }
             catch (LobbyServiceException e)
             {
@@ -174,6 +182,103 @@ namespace Network
                 LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
                 yield return delay;
             }
+        }
+
+        /// <summary>
+        /// Получает IP адрес хоста из Lobby Data
+        /// </summary>
+        public string GetHostIPFromLobby()
+        {
+            if (JoinedLobby?.Data != null && JoinedLobby.Data.ContainsKey("HostIP"))
+            {
+                return JoinedLobby.Data["HostIP"].Value;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Получает порт хоста из Lobby Data
+        /// </summary>
+        public int GetHostPortFromLobby()
+        {
+            if (JoinedLobby?.Data != null && JoinedLobby.Data.ContainsKey("HostPort"))
+            {
+                if (int.TryParse(JoinedLobby.Data["HostPort"].Value, out int port))
+                {
+                    return port;
+                }
+            }
+            return NetworkIPHelper.GetDefaultPort();
+        }
+
+        /// <summary>
+        /// Обновляет Lobby Data с флагом GameStarted
+        /// </summary>
+        public async Task UpdateLobbyGameStarted(bool started)
+        {
+            if (JoinedLobby == null) return;
+
+            try
+            {
+                var updateOptions = new UpdateLobbyOptions
+                {
+                    Data = new Dictionary<string, DataObject> {
+                        { "GameStarted", new DataObject(DataObject.VisibilityOptions.Public, started.ToString()) }
+                    }
+                };
+                JoinedLobby = await LobbyService.Instance.UpdateLobbyAsync(JoinedLobby.Id, updateOptions);
+                Debug.Log($"Lobby GameStarted flag updated to: {started}");
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogError($"Failed to update GameStarted flag: {e}");
+            }
+        }
+
+        /// <summary>
+        /// Обновляет IP и порт хоста в Lobby Data
+        /// </summary>
+        public async Task UpdateLobbyHostIP(string ip, int port)
+        {
+            if (JoinedLobby == null) return;
+
+            try
+            {
+                var updateOptions = new UpdateLobbyOptions
+                {
+                    Data = new Dictionary<string, DataObject> {
+                        { "HostIP", new DataObject(DataObject.VisibilityOptions.Public, ip) },
+                        { "HostPort", new DataObject(DataObject.VisibilityOptions.Public, port.ToString()) }
+                    }
+                };
+                JoinedLobby = await LobbyService.Instance.UpdateLobbyAsync(JoinedLobby.Id, updateOptions);
+                Debug.Log($"Lobby HostIP updated to: {ip}:{port}");
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogError($"Failed to update HostIP: {e}");
+            }
+        }
+
+        /// <summary>
+        /// Проверяет, является ли текущий игрок хостом лобби
+        /// </summary>
+        public bool IsHost()
+        {
+            if (JoinedLobby == null) return false;
+            return JoinedLobby.HostId == AuthenticationService.Instance.PlayerId;
+        }
+
+        /// <summary>
+        /// Проверяет, началась ли игра (по флагу GameStarted в Lobby Data)
+        /// </summary>
+        public bool IsGameStarted()
+        {
+            if (JoinedLobby?.Data != null && JoinedLobby.Data.ContainsKey("GameStarted"))
+            {
+                return bool.TryParse(JoinedLobby.Data["GameStarted"].Value, out bool started) && started;
+            }
+            return false;
         }
     }
 }
