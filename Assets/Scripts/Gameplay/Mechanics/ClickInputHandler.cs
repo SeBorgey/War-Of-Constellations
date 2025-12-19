@@ -35,16 +35,14 @@ namespace Gameplay.Mechanics
         {
             if (_localPlayer == null) return;
 
-            float power = _localPlayer.GetClickPower();
+            int power = _localPlayer.GetClickPower();
+            Player player = _localPlayer.PlayerColor;
 
             // TODO: Send input to server/host
-            Debug.Log($"Clicked on Star at {star.Coordinates} with power {power}");
+            Debug.Log($"Player {player} clicked on Star {star.Id} at {star.Coordinates} with power {power}");
 
             // For now (direct interaction stub):
-            // if (star.Owner == _localPlayer.PlayerId)
-            //    star.ChangeValue(power);
-            // else
-            //    star.ChangeValue(-power);
+            // star.ApplyDamage(player, power);
         }
     }
 }

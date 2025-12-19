@@ -1,23 +1,24 @@
 using UnityEngine;
 using System;
+using Gameplay.Map;
 
 namespace Gameplay.Mechanics
 {
     public class PlayerController : MonoBehaviour
     {
         [Header("Player Data")]
-        [SerializeField] private int _playerId;
+        [SerializeField] private Player _playerColor;
         [SerializeField] private int _gold;
-        [SerializeField] private float _clickPower = 1.0f;
+        [SerializeField] private int _clickPower = 1;
 
-        public int PlayerId => _playerId;
+        public Player PlayerColor => _playerColor;
         public int Gold => _gold;
 
         public event Action<int> OnGoldChanged;
 
-        public void Initialize(int id)
+        public void Initialize(Player color)
         {
-            _playerId = id;
+            _playerColor = color;
             _gold = 0;
         }
 
@@ -27,7 +28,7 @@ namespace Gameplay.Mechanics
             OnGoldChanged?.Invoke(_gold);
         }
 
-        public float GetClickPower()
+        public int GetClickPower()
         {
             // TODO: Apply modifiers
             return _clickPower;
