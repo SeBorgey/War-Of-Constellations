@@ -23,28 +23,28 @@ namespace Gameplay.Mechanics
             Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                var node = hit.collider.GetComponent<Node>();
-                if (node != null)
+                var star = hit.collider.GetComponent<Star>();
+                if (star != null)
                 {
-                    OnNodeClicked(node);
+                    OnStarClicked(star);
                 }
             }
         }
 
-        private void OnNodeClicked(Node node)
+        private void OnStarClicked(Star star)
         {
             if (_localPlayer == null) return;
-            
+
             float power = _localPlayer.GetClickPower();
-            
+
             // TODO: Send input to server/host
-            Debug.Log($"Clicked on Node {node.Id} with power {power}");
-            
+            Debug.Log($"Clicked on Star at {star.Coordinates} with power {power}");
+
             // For now (direct interaction stub):
-            // if (node.OwnerId == _localPlayer.PlayerId) 
-            //    node.ChangeValue(power);
-            // else 
-            //    node.ChangeValue(-power);
+            // if (star.Owner == _localPlayer.PlayerId)
+            //    star.ChangeValue(power);
+            // else
+            //    star.ChangeValue(-power);
         }
     }
 }
