@@ -15,7 +15,7 @@ namespace UI
 
         private Dictionary<ulong, GameObject> _playerEntries = new Dictionary<ulong, GameObject>();
         private NetworkGameManager _networkGameManager;
-        private NetworkConnectionManager _connectionManager;
+        private Network.NetworkConnectionManager _connectionManager;
 
         private void Start()
         {
@@ -39,7 +39,7 @@ namespace UI
         private void InitializeNetworkTracking()
         {
             _networkGameManager = NetworkGameManager.Instance;
-            _connectionManager = NetworkConnectionManager.Instance;
+            _connectionManager = Network.NetworkConnectionManager.Instance;
 
             if (_networkGameManager != null)
             {
