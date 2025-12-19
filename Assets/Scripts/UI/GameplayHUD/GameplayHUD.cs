@@ -103,7 +103,7 @@ namespace UI
 
         private void ShowCurrentPlayer()
         {
-            var networkManager = NetworkManager.Singleton;
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
             if (networkManager != null && networkManager.IsClient)
             {
                 ulong localClientId = networkManager.LocalClientId;
@@ -192,7 +192,7 @@ namespace UI
 
         private bool IsHost(ulong clientId)
         {
-            var networkManager = NetworkManager.Singleton;
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
             if (networkManager != null && networkManager.IsServer)
             {
                 // Хост всегда имеет clientId = 0

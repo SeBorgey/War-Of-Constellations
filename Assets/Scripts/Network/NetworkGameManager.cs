@@ -9,7 +9,7 @@ namespace Network
     {
         public static NetworkGameManager Instance { get; private set; }
 
-        private NetworkManager _networkManager;
+        private Unity.Netcode.NetworkManager _networkManager;
         private UnityTransport _transport;
 
         public event Action<ulong> OnPlayerConnected;
@@ -31,7 +31,7 @@ namespace Network
                 return;
             }
 
-            _networkManager = NetworkManager.Singleton;
+            _networkManager = Unity.Netcode.NetworkManager.Singleton;
             if (_networkManager == null)
             {
                 Debug.LogError("NetworkManager.Singleton is null! Make sure NetworkManager exists in the scene.");

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 namespace Network
 {
@@ -13,7 +14,7 @@ namespace Network
             Debug.Log("[GameSceneInitializer] Starting initialization...");
 
             // Проверяем наличие NetworkManager в сцене
-            var networkManager = NetworkManager.Singleton;
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
             if (networkManager == null)
             {
                 Debug.LogError("[GameSceneInitializer] NetworkManager.Singleton is null! Make sure NetworkManager exists in the Game scene.");
