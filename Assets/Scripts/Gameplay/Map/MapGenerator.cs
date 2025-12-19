@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -33,7 +34,15 @@ namespace Gameplay.Map
 
         public void GenerateMap()
         {
-            Debug.Log($"Generating Map with complexity: {_mapComplexity}");
+            // Генерация карты должна происходить только на сервере/хосте
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager != null && !networkManager.IsServer)
+            {
+                Debug.Log("[MapGenerator] Map generation skipped - not server/host. Client will receive map from server.");
+                return;
+            }
+
+            Debug.Log($"[MapGenerator] Generating Map with complexity: {_mapComplexity}");
 
             // Get configuration based on complexity
             _config = MapComplexityConfig.GetConfig(_mapComplexity);
@@ -53,7 +62,7 @@ namespace Gameplay.Map
             // Step 3: Compute constellation neighbors using Delaunay triangulation
             _gameMap?.ComputeConstellationNeighbors();
 
-            Debug.Log($"Map generation complete! Created {_gameMap.Size()} constellations.");
+            Debug.Log($"[MapGenerator] Map generation complete! Created {_gameMap.Size()} constellations.");
         }
 
         private void GenerateConstellationCenters()
@@ -207,6 +216,14 @@ namespace Gameplay.Map
 
         private void CreateStar(Constellation constellation, Vector2 position, int size, List<Vector2> starPositions)
         {
+            // Создание Star должно происходить только на сервере
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager == null || !networkManager.IsServer)
+            {
+                Debug.LogWarning("[MapGenerator] CreateStar called but not on server!");
+                return;
+            }
+
             GameObject starObj = _starPrefab != null
                 ? Instantiate(_starPrefab, constellation.transform)
                 : new GameObject($"Star_{starPositions.Count}");
@@ -222,13 +239,25 @@ namespace Gameplay.Map
                 star = starObj.AddComponent<Star>();
             }
 
+            // Убеждаемся, что у Star есть NetworkObject компонент
+            NetworkObject networkObject = starObj.GetComponent<NetworkObject>();
+            if (networkObject == null)
+            {
+                networkObject = starObj.AddComponent<NetworkObject>();
+            }
+
             // Generate unique star ID and random HP (1-20, uniform distribution)
             int starId = _nextStarId++;
             int hp = Random.Range(1, 21);
             star.Initialize(starId, position, size, hp);
 
+            // Спавним Star через сеть
+            networkObject.Spawn();
+
             constellation.AddStar(star);
             starPositions.Add(position);
+            
+            Debug.Log($"[MapGenerator] Created and spawned Star {starId} at {position} with HP {hp}");
         }
 
         private float GetDistanceToClosestConstellation(Vector2 center, int excludeIndex)
