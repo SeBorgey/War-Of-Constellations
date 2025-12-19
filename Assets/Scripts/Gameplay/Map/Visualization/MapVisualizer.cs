@@ -27,6 +27,7 @@ namespace Gameplay.Map.Visualization
         private bool _isInitialized = false;
 
         public bool IsInitialized => _isInitialized;
+        public MapVisualizationSettings Settings => _settings;
 
         private void Awake()
         {
