@@ -9,11 +9,13 @@ namespace Gameplay.Map
         [SerializeField] private int _id;
         [SerializeField] private List<Star> _stars = new List<Star>();
         [SerializeField] private Vector2 _center;
+        [SerializeField] private List<Constellation> _neighbors = new List<Constellation>();
 
         // Getters
         public int Id => _id;
         public Vector2 Center => _center;
         public List<Star> Stars => new List<Star>(_stars); // Return copy for safety
+        public List<Constellation> Neighbors => new List<Constellation>(_neighbors);
 
         /// <summary>
         /// Returns the owner state of the constellation.
@@ -54,6 +56,7 @@ namespace Gameplay.Map
             _id = id;
             _center = center;
             _stars.Clear();
+            _neighbors.Clear();
         }
 
         public void AddStar(Star star)
@@ -62,6 +65,14 @@ namespace Gameplay.Map
             {
                 _stars.Add(star);
                 star.SetConstellationId(_id);
+            }
+        }
+
+        public void AddNeighbor(Constellation neighbor)
+        {
+            if (neighbor != this && !_neighbors.Contains(neighbor))
+            {
+                _neighbors.Add(neighbor);
             }
         }
 
