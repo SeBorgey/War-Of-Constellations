@@ -485,8 +485,8 @@ MonoBehaviour:
   _mapComplexity: 1
   _mapWidth: 1920
   _mapHeight: 1080
-  _starPrefab: {fileID: 0}
-  _constellationPrefab: {fileID: 0}
+  _starPrefab: {fileID: 4596455693969499398, guid: d808901f0f7118a40b36f0ab638a0d1d, type: 3}
+  _constellationPrefab: {fileID: 4596455693969499398, guid: d808901f0f7118a40b36f0ab638a0d1d, type: 3}
   _container: {fileID: 0}
   _gameMap: {fileID: 1928740792}
 --- !u!4 &843284297
@@ -535,6 +535,37 @@ Transform:
   m_Children:
   - {fileID: 1320426111}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1057677468
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1057677469}
+  m_Layer: 0
+  m_Name: MapEdges
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1057677469
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057677468}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2099146826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1320426111 stripped
 RectTransform:
@@ -586,6 +617,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1374998134
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1374998135}
+  m_Layer: 0
+  m_Name: ConstellationEdges
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1374998135
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374998134}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2099146826}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1822565542
 GameObject:
@@ -663,7 +725,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1822565545}
-    PlayerPrefab: {fileID: 0}
+    PlayerPrefab: {fileID: 4596455693969499398, guid: d808901f0f7118a40b36f0ab638a0d1d, type: 3}
     Prefabs:
       NetworkPrefabsLists: []
     TickRate: 30
@@ -780,7 +842,9 @@ Transform:
   m_LocalPosition: {x: 557.7154, y: 638.67365, z: 98.006004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1374998135}
+  - {fileID: 1057677469}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2099146827
@@ -797,8 +861,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameMap: {fileID: 1928740792}
   _settings: {fileID: 11400000, guid: 3c6c955fd1105344483b514867c71b7b, type: 2}
-  _constellationEdgesContainer: {fileID: 0}
-  _mapEdgesContainer: {fileID: 0}
+  _constellationEdgesContainer: {fileID: 1374998135}
+  _mapEdgesContainer: {fileID: 1057677469}
 --- !u!1001 &1278066490410545217
 PrefabInstance:
   m_ObjectHideFlags: 0
