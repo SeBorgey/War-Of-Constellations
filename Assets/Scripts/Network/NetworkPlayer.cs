@@ -1,4 +1,5 @@
 using System.Linq;
+using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace Network
     /// </summary>
     public class NetworkPlayer : NetworkBehaviour
     {
-        private NetworkVariable<string> _playerName = new NetworkVariable<string>(
+        private NetworkVariable<FixedString64Bytes> _playerName = new NetworkVariable<FixedString64Bytes>(
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server);
 
@@ -24,7 +25,7 @@ namespace Network
             readPerm: NetworkVariableReadPermission.Everyone,
             writePerm: NetworkVariableWritePermission.Server);
 
-        public string PlayerName => _playerName.Value;
+        public string PlayerName => _playerName.Value.ToString();
         public ulong ClientId => _clientId.Value;
         public Player PlayerColor => (Player)_playerColor.Value;
 
@@ -61,7 +62,7 @@ namespace Network
             _playerColor.OnValueChanged -= OnPlayerColorChanged;
         }
 
-        private void OnPlayerNameChanged(string oldName, string newName)
+        private void OnPlayerNameChanged(FixedString64Bytes oldName, FixedString64Bytes newName)
         {
             Debug.Log($"[NetworkPlayer] Player name changed from {oldName} to {newName}");
         }

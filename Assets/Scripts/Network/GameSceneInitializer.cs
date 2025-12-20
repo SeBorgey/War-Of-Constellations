@@ -9,19 +9,33 @@ namespace Network
     /// </summary>
     public class GameSceneInitializer : MonoBehaviour
     {
-        private void Start()
-        {
-            Debug.Log("[GameSceneInitializer] Starting initialization...");
+        // private void Awake()
+        // {
+        //     Debug.Log("[GameSceneInitializer] Awake called");
+        // }
 
-            // Проверяем наличие NetworkManager в сцене
+        private void Awake()
+        {
+            Debug.Log("[GameSceneInitializer] Start called");
+
+            // Диагностика: ищем все NetworkManager в сцене
+            var allManagers = FindObjectsByType<Unity.Netcode.NetworkManager>(FindObjectsSortMode.None);
+            Debug.Log($"[GameSceneInitializer] Found {allManagers.Length} NetworkManager(s) in scene");
+            foreach (var nm in allManagers)
+            {
+                Debug.Log($"[GameSceneInitializer] NM: {nm.gameObject.name}, scene={nm.gameObject.scene.name}, DontDestroyOnLoad={(nm.gameObject.scene.name == "DontDestroyOnLoad")}");
+            }
+
+            // NetworkManager должен уже существовать из MainMenu (DontDestroyOnLoad)
             var networkManager = Unity.Netcode.NetworkManager.Singleton;
             if (networkManager == null)
             {
-                Debug.LogError("[GameSceneInitializer] NetworkManager.Singleton is null! Make sure NetworkManager exists in the Game scene.");
+                Debug.LogError("[GameSceneInitializer] NetworkManager.Singleton is null! NetworkManager was destroyed during scene change.");
+                Debug.LogError("[GameSceneInitializer] Make sure Unity NetworkManager component has 'Dont Destroy' enabled in inspector, or NetworkConnectionManager is on the same GameObject.");
                 return;
             }
 
-            Debug.Log("[GameSceneInitializer] NetworkManager found in scene");
+            Debug.Log($"[GameSceneInitializer] NetworkManager.Singleton found: {networkManager.gameObject.name}, IsServer={networkManager.IsServer}, IsClient={networkManager.IsClient}");
 
             // Создаем NetworkGameManager как компонент на существующем NetworkManager
             if (NetworkGameManager.Instance == null)

@@ -81,37 +81,58 @@ namespace Gameplay.Map
 
         private System.Collections.IEnumerator WaitForNetworkGameManager()
         {
-            float timeout = 5f;
+            float timeout = 15f;
             float elapsed = 0f;
+
+            Debug.Log("[MapController] Waiting for NetworkGameManager...");
 
             while (NetworkGameManager.Instance == null && elapsed < timeout)
             {
-                yield return new WaitForSeconds(0.1f);
-                elapsed += 0.1f;
+                yield return new WaitForSeconds(0.2f);
+                elapsed += 0.2f;
             }
 
             if (NetworkGameManager.Instance != null)
             {
+                Debug.Log($"[MapController] NetworkGameManager found after {elapsed:F1}s");
                 SubscribeToNetworkEvents();
 
-                // Проверяем текущее состояние после подписки
-                var networkManager = NetworkManager.Singleton;
-                if (networkManager != null)
-                {
-                    if (networkManager.IsServer && networkManager.IsListening && !_mapGenerated)
-                    {
-                        OnServerReady();
-                    }
-                    else if (networkManager.IsClient && networkManager.IsConnectedClient && !_visualizationInitialized)
-                    {
-                        OnClientReady();
-                    }
-                }
+                // Ждём пока сеть будет готова
+                yield return StartCoroutine(WaitForNetworkReady());
             }
             else
             {
                 Debug.LogError("[MapController] Timeout waiting for NetworkGameManager!");
             }
+        }
+
+        private System.Collections.IEnumerator WaitForNetworkReady()
+        {
+            float timeout = 10f;
+            float elapsed = 0f;
+
+            var networkManager = NetworkManager.Singleton;
+
+            while (networkManager != null && elapsed < timeout)
+            {
+                if (networkManager.IsServer && networkManager.IsListening && !_mapGenerated)
+                {
+                    Debug.Log("[MapController] Server is ready");
+                    OnServerReady();
+                    yield break;
+                }
+                else if (networkManager.IsClient && networkManager.IsConnectedClient && !_visualizationInitialized)
+                {
+                    Debug.Log("[MapController] Client is connected");
+                    OnClientReady();
+                    yield break;
+                }
+
+                yield return new WaitForSeconds(0.2f);
+                elapsed += 0.2f;
+            }
+
+            Debug.LogWarning($"[MapController] Network not ready after {elapsed:F1}s. IsServer={networkManager?.IsServer}, IsClient={networkManager?.IsClient}, IsListening={networkManager?.IsListening}, IsConnectedClient={networkManager?.IsConnectedClient}");
         }
 
         /// <summary>
