@@ -40,22 +40,48 @@ namespace Network
 
         public async Task InitializeAsync(string playerName)
         {
-            Debug.Log("Initializing Unity Services");
-            InitializationOptions initializationOptions = new InitializationOptions();
-            initializationOptions.SetProfile(playerName);
+            Debug.Log($"[NetworkConnectionManager] Initializing Unity Services for player: {playerName}");
 
-            await UnityServices.InitializeAsync(initializationOptions);
-
-            AuthenticationService.Instance.SignedIn += () => 
+            try
             {
-                Debug.Log("Player id: " + AuthenticationService.Instance.PlayerId);
-            };
+                // Проверяем, не инициализированы ли уже сервисы
+                if (UnityServices.State != ServicesInitializationState.Initialized)
+                {
+                    InitializationOptions initializationOptions = new InitializationOptions();
+                    initializationOptions.SetProfile(playerName);
 
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                    await UnityServices.InitializeAsync(initializationOptions);
+                    Debug.Log("[NetworkConnectionManager] Unity Services initialized");
+                }
+                else
+                {
+                    Debug.Log("[NetworkConnectionManager] Unity Services already initialized");
+                }
+
+                AuthenticationService.Instance.SignedIn += () =>
+                {
+                    Debug.Log($"[NetworkConnectionManager] Player signed in with id: {AuthenticationService.Instance.PlayerId}");
+                };
+
+                if (!AuthenticationService.Instance.IsSignedIn)
+                {
+                    Debug.Log("[NetworkConnectionManager] Signing in anonymously...");
+                    await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                    Debug.Log("[NetworkConnectionManager] Signed in successfully");
+                }
+                else
+                {
+                    Debug.Log("[NetworkConnectionManager] Already signed in");
+                }
+
+                this.playerName = playerName;
+                Debug.Log($"[NetworkConnectionManager] Initialization complete for player: {playerName}");
             }
-            this.playerName = playerName;
+            catch (Exception e)
+            {
+                Debug.LogError($"[NetworkConnectionManager] Failed to initialize: {e.Message}");
+                throw; // Перебрасываем исключение чтобы вызывающий код мог обработать
+            }
         }
 
         public async Task CreateLobbyAndHost(string name, int maxPlsyers)

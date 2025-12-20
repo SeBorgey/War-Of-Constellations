@@ -43,6 +43,14 @@ namespace Network
             {
                 Debug.LogError("UnityTransport component not found on NetworkManager!");
             }
+
+            // TODO delete when client visualisation issue fixed (NetworkManager duplication)
+            var managers = FindObjectsByType<NetworkManager>(FindObjectsSortMode.None);
+            Debug.Log($"[NET] NetworkManagers in scene = {managers.Length}");
+            foreach (var nm in managers)
+            {
+                Debug.Log($"[NET] NM obj={nm.gameObject.name} prefabsCount={nm.NetworkConfig.Prefabs.Prefabs.Count}");
+            }
         }
 
         private void OnEnable()

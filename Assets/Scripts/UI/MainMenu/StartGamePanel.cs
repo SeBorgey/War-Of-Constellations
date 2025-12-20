@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Network;
+using System;
 
 namespace UI
 {
@@ -23,21 +24,41 @@ namespace UI
 
         public async void OnHostClicked()
         {
-            Fader.CanvasGroup.interactable = false;
-            await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
-            panelsManager.ActivatePanel(MainMenuPanels.HostGame);
+            try
+            {
+                Fader.CanvasGroup.interactable = false;
+                Debug.Log("[StartGamePanel] Initializing for host...");
+                await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
+                Debug.Log("[StartGamePanel] Initialization complete, switching to HostGame panel");
+                panelsManager.ActivatePanel(MainMenuPanels.HostGame);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[StartGamePanel] Failed to initialize: {e.Message}\n{e.StackTrace}");
+                Fader.CanvasGroup.interactable = true; // Разблокируем UI при ошибке
+            }
         }
 
         public async void OnJoinClicked()
         {
-            Fader.CanvasGroup.interactable = false;
-            await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
-            panelsManager.ActivatePanel(MainMenuPanels.JoinGame);
+            try
+            {
+                Fader.CanvasGroup.interactable = false;
+                Debug.Log("[StartGamePanel] Initializing for join...");
+                await NetworkConnectionManager.Instance.InitializeAsync(playerNameField.text);
+                Debug.Log("[StartGamePanel] Initialization complete, switching to JoinGame panel");
+                panelsManager.ActivatePanel(MainMenuPanels.JoinGame);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[StartGamePanel] Failed to initialize: {e.Message}\n{e.StackTrace}");
+                Fader.CanvasGroup.interactable = true; // Разблокируем UI при ошибке
+            }
         }
 
         public void OnBackClicked()
         {
-            panelsManager.ActivatePanel(MainMenuPanels.StartGame -1);
+            panelsManager.ActivatePanel(MainMenuPanels.StartGame - 1);
         }
 
     }
