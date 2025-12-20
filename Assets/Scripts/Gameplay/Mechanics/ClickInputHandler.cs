@@ -37,6 +37,28 @@ namespace Gameplay.Mechanics
                 // #region agent log
                 try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"E\",\"location\":\"ClickInputHandler.cs:Start\",\"message\":\"PlayerController search result\",\"data\":{{\"found\":{(_localPlayer != null).ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
                 // #endregion
+                
+                // Если не найден, попробуем найти через NetworkManager
+                if (_localPlayer == null)
+                {
+                    var networkManager = Unity.Netcode.NetworkManager.Singleton;
+                    if (networkManager != null)
+                    {
+                        // Ищем PlayerController среди спавненных NetworkObject
+                        var allControllers = UnityEngine.Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+                        // #region agent log
+                        try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"E\",\"location\":\"ClickInputHandler.cs:Start\",\"message\":\"PlayerController search all\",\"data\":{{\"count\":{allControllers.Length}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                        // #endregion
+                        if (allControllers.Length > 0)
+                        {
+                            // Выбираем первый найденный (или можно выбрать по IsOwner)
+                            _localPlayer = allControllers[0];
+                            // #region agent log
+                            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"E\",\"location\":\"ClickInputHandler.cs:Start\",\"message\":\"PlayerController found in all\",\"data\":{{\"found\":true}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                            // #endregion
+                        }
+                    }
+                }
             }
             else
             {
@@ -48,12 +70,12 @@ namespace Gameplay.Mechanics
 
         private void Update()
         {
-            // Проверяем, что клиент подключен к сети
+            // Проверяем, что сеть запущена (хост или клиент)
             var networkManager = Unity.Netcode.NetworkManager.Singleton;
-            if (networkManager != null && !networkManager.IsClient)
+            if (networkManager == null || (!networkManager.IsClient && !networkManager.IsServer))
             {
                 // #region agent log
-                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"F\",\"location\":\"ClickInputHandler.cs:Update\",\"message\":\"Network check blocked click\",\"data\":{{\"networkManagerExists\":{(networkManager != null).ToString().ToLower()},\"isClient\":{(networkManager != null && networkManager.IsClient).ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"F\",\"location\":\"ClickInputHandler.cs:Update\",\"message\":\"Network check blocked click\",\"data\":{{\"networkManagerExists\":{(networkManager != null).ToString().ToLower()},\"isClient\":{(networkManager != null && networkManager.IsClient).ToString().ToLower()},\"isServer\":{(networkManager != null && networkManager.IsServer).ToString().ToLower()},\"isHost\":{(networkManager != null && networkManager.IsHost).ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
                 // #endregion
                 return; // Не обрабатываем клики, если не подключены к сети
             }
@@ -132,10 +154,10 @@ namespace Gameplay.Mechanics
             }
 
             var networkManager = Unity.Netcode.NetworkManager.Singleton;
-            if (networkManager == null || !networkManager.IsClient)
+            if (networkManager == null || (!networkManager.IsClient && !networkManager.IsServer))
             {
                 // #region agent log
-                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"F\",\"location\":\"ClickInputHandler.cs:OnStarClicked\",\"message\":\"Network check failed\",\"data\":{{\"networkManagerExists\":{(networkManager != null).ToString().ToLower()},\"isClient\":{(networkManager != null && networkManager.IsClient).ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"F\",\"location\":\"ClickInputHandler.cs:OnStarClicked\",\"message\":\"Network check failed\",\"data\":{{\"networkManagerExists\":{(networkManager != null).ToString().ToLower()},\"isClient\":{(networkManager != null && networkManager.IsClient).ToString().ToLower()},\"isServer\":{(networkManager != null && networkManager.IsServer).ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
                 // #endregion
                 Debug.LogWarning("[ClickInputHandler] Not connected to network!");
                 return;

@@ -71,6 +71,10 @@ namespace Gameplay.Map
         {
             base.OnNetworkSpawn();
             
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"K\",\"location\":\"Star.cs:OnNetworkSpawn\",\"message\":\"Star spawned\",\"data\":{{\"starId\":{_id},\"isServer\":{IsServer.ToString().ToLower()},\"isClient\":{IsClient.ToString().ToLower()},\"isHost\":{IsHost.ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
+            
             // Находим TextMeshProUGUI если не установлен
             if (_hpText == null)
             {

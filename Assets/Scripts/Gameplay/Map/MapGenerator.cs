@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Gameplay.Map
 {
@@ -31,6 +32,7 @@ namespace Gameplay.Map
         private MapComplexityConfig _config;
         private List<Vector2> _constellationCenters = new List<Vector2>();
         private int _nextStarId;
+        private const string LOG_PATH = "/home/ivan/Desktop/unity/War-Of-Constellations/.cursor/debug.log";
 
         public void GenerateMap()
         {
@@ -252,7 +254,13 @@ namespace Gameplay.Map
             star.Initialize(starId, position, size, hp);
 
             // Спавним Star через сеть
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"K\",\"location\":\"MapGenerator.cs:CreateStar\",\"message\":\"Before Spawn\",\"data\":{{\"starId\":{starId},\"position\":\"{position}\",\"hasNetworkObject\":{(networkObject != null).ToString().ToLower()},\"isServer\":{networkManager.IsServer}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
             networkObject.Spawn();
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"K\",\"location\":\"MapGenerator.cs:CreateStar\",\"message\":\"After Spawn\",\"data\":{{\"starId\":{starId},\"isSpawned\":{networkObject.IsSpawned.ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
 
             constellation.AddStar(star);
             starPositions.Add(position);
