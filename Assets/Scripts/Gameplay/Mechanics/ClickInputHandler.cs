@@ -16,6 +16,21 @@ namespace Gameplay.Mechanics
             // #region agent log
             try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\",\"location\":\"ClickInputHandler.cs:Start\",\"message\":\"ClickInputHandler Start called\",\"data\":{{\"active\":{gameObject.activeSelf},\"enabled\":{enabled}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
             // #endregion
+            
+            // Инициализируем камеру
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+                if (_mainCamera == null)
+                {
+                    // Пытаемся найти любую камеру в сцене
+                    _mainCamera = UnityEngine.Object.FindFirstObjectByType<Camera>();
+                    // #region agent log
+                    try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"C\",\"location\":\"ClickInputHandler.cs:Start\",\"message\":\"Camera search\",\"data\":{{\"cameraMain\":{(Camera.main != null).ToString().ToLower()},\"cameraFound\":{(_mainCamera != null).ToString().ToLower()},\"cameraName\":\"{(_mainCamera != null ? _mainCamera.name : "null")}\"}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                    // #endregion
+                }
+            }
+            
             if (_localPlayer == null)
             {
                 _localPlayer = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
@@ -54,10 +69,29 @@ namespace Gameplay.Mechanics
 
         private void HandleClick()
         {
-            if (_mainCamera == null) _mainCamera = Camera.main;
+            // Пытаемся найти камеру, если она не установлена
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+                if (_mainCamera == null)
+                {
+                    // Пытаемся найти любую камеру в сцене
+                    _mainCamera = UnityEngine.Object.FindFirstObjectByType<Camera>();
+                }
+            }
             // #region agent log
             try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"C\",\"location\":\"ClickInputHandler.cs:HandleClick\",\"message\":\"Camera check\",\"data\":{{\"cameraExists\":{(_mainCamera != null).ToString().ToLower()},\"cameraName\":\"{(_mainCamera != null ? _mainCamera.name : "null")}\"}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
             // #endregion
+
+            // Проверяем, что камера существует перед использованием
+            if (_mainCamera == null)
+            {
+                // #region agent log
+                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"C\",\"location\":\"ClickInputHandler.cs:HandleClick\",\"message\":\"Camera is null, aborting click\",\"data\":{{}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                // #endregion
+                Debug.LogWarning("[ClickInputHandler] Main camera is null! Cannot process click. Make sure there is a Camera in the scene with tag 'MainCamera'.");
+                return;
+            }
 
             // Используем 2D Raycast для клика по узлам
             Vector3 mousePos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
