@@ -31,8 +31,27 @@ namespace Network
             if (networkManager == null)
             {
                 Debug.LogError("[GameSceneInitializer] NetworkManager.Singleton is null! NetworkManager was destroyed during scene change.");
-                Debug.LogError("[GameSceneInitializer] Make sure Unity NetworkManager component has 'Dont Destroy' enabled in inspector, or NetworkConnectionManager is on the same GameObject.");
+                Debug.LogError("[GameSceneInitializer] Attempting to find NetworkManager in scene...");
+                
+                // Попытка найти NetworkManager в текущей сцене
+                var managersInScene = FindObjectsByType<Unity.Netcode.NetworkManager>(FindObjectsSortMode.None);
+                if (managersInScene.Length > 0)
+                {
+                    Debug.LogWarning($"[GameSceneInitializer] Found {managersInScene.Length} NetworkManager(s) in scene, but Singleton is null. This indicates a configuration issue.");
+                    Debug.LogWarning("[GameSceneInitializer] Make sure Unity NetworkManager component has 'Dont Destroy' enabled in inspector.");
+                }
+                else
+                {
+                    Debug.LogError("[GameSceneInitializer] No NetworkManager found in scene! NetworkManager must exist before Game scene loads.");
+                }
                 return;
+            }
+
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Убеждаемся, что NetworkManager не уничтожается при смене сцены
+            if (networkManager.gameObject.scene.name != "DontDestroyOnLoad")
+            {
+                Debug.LogWarning("[GameSceneInitializer] NetworkManager is not in DontDestroyOnLoad scene! Setting DontDestroyOnLoad...");
+                DontDestroyOnLoad(networkManager.gameObject);
             }
 
             Debug.Log($"[GameSceneInitializer] NetworkManager.Singleton found: {networkManager.gameObject.name}, IsServer={networkManager.IsServer}, IsClient={networkManager.IsClient}");
