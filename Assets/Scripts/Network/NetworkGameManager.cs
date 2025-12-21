@@ -38,6 +38,13 @@ namespace Network
                 return;
             }
 
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Убеждаемся, что NetworkManager не уничтожается при смене сцены
+            if (_networkManager.gameObject.scene.name != "DontDestroyOnLoad")
+            {
+                Debug.LogWarning("[NetworkGameManager] NetworkManager is not in DontDestroyOnLoad scene! Setting DontDestroyOnLoad...");
+                DontDestroyOnLoad(_networkManager.gameObject);
+            }
+
             _transport = _networkManager.GetComponent<UnityTransport>();
             if (_transport == null)
             {

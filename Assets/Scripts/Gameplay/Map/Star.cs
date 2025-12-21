@@ -1,5 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
+using TMPro;
+using System.IO;
 
 namespace Gameplay.Map
 {
@@ -25,6 +27,9 @@ namespace Gameplay.Map
         [Header("Star Data")]
         [SerializeField] private Vector2 _coordinates;
         [SerializeField] private int _size; // 1-5
+        
+        [Header("UI")]
+        [SerializeField] private TextMeshProUGUI _hpText; // Текст для отображения HP
         
         // Синхронизированные через NetworkVariable
         private NetworkVariable<int> _hp = new NetworkVariable<int>(
@@ -65,11 +70,77 @@ namespace Gameplay.Map
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"K\",\"location\":\"Star.cs:OnNetworkSpawn\",\"message\":\"Star spawned\",\"data\":{{\"starId\":{_id},\"isServer\":{IsServer.ToString().ToLower()},\"isClient\":{IsClient.ToString().ToLower()},\"isHost\":{IsHost.ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
+            
+            // Находим TextMeshProUGUI если не установлен
+            if (_hpText == null)
+            {
+                _hpText = GetComponentInChildren<TextMeshProUGUI>();
+                if (_hpText == null)
+                {
+                    Debug.LogWarning($"[Star] TextMeshProUGUI not found for Star {_id}!");
+                }
+            }
+            
+            // Подписываемся на изменения HP и урона для обновления текста
+            _hp.OnValueChanged += OnHPChanged;
+            _blueDamage.OnValueChanged += OnDamageChanged;
+            _redDamage.OnValueChanged += OnDamageChanged;
+            
+            // Обновляем текст при спавне
+            UpdateHPText();
         }
 
         public override void OnNetworkDespawn()
         {
+            // Отписываемся от событий
+            _hp.OnValueChanged -= OnHPChanged;
+            _blueDamage.OnValueChanged -= OnDamageChanged;
+            _redDamage.OnValueChanged -= OnDamageChanged;
+            
             base.OnNetworkDespawn();
+        }
+
+        private void OnHPChanged(int oldValue, int newValue)
+        {
+            UpdateHPText();
+        }
+
+        private void OnDamageChanged(int oldValue, int newValue)
+        {
+            UpdateHPText();
+        }
+
+        private void UpdateHPText()
+        {
+            if (_hpText != null)
+            {
+                // Показываем текущее HP и прогресс захвата
+                int currentHP = _hp.Value;
+                int blueProgress = _blueDamage.Value;
+                int redProgress = _redDamage.Value;
+                
+                // Если звезда захвачена, показываем только HP
+                if (blueProgress >= currentHP)
+                {
+                    _hpText.text = currentHP.ToString();
+                    _hpText.color = Color.cyan; // Синий цвет для Blue игрока
+                }
+                else if (redProgress >= currentHP)
+                {
+                    _hpText.text = currentHP.ToString();
+                    _hpText.color = Color.red; // Красный цвет для Red игрока
+                }
+                else
+                {
+                    // Показываем HP и прогресс
+                    _hpText.text = $"{currentHP}\nB:{blueProgress} R:{redProgress}";
+                    _hpText.color = Color.white; // Белый цвет для нейтральной звезды
+                }
+            }
         }
 
         // Setters
@@ -122,6 +193,12 @@ namespace Gameplay.Map
             }
             
             _constellationId = -1;
+            
+            // Находим TextMeshProUGUI если не установлен (для случаев, когда Initialize вызывается до OnNetworkSpawn)
+            if (_hpText == null)
+            {
+                _hpText = GetComponentInChildren<TextMeshProUGUI>();
+            }
         }
 
         /// <summary>
@@ -131,8 +208,14 @@ namespace Gameplay.Map
         /// </summary>
         public void ApplyDamage(Player player, int amount)
         {
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H\",\"location\":\"Star.cs:ApplyDamage\",\"message\":\"ApplyDamage called\",\"data\":{{\"starId\":{_id},\"player\":\"{player}\",\"amount\":{amount},\"isServer\":{IsServer.ToString().ToLower()},\"hpBefore\":{_hp.Value},\"blueDamageBefore\":{_blueDamage.Value},\"redDamageBefore\":{_redDamage.Value}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
             if (!IsServer)
             {
+                // #region agent log
+                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H\",\"location\":\"Star.cs:ApplyDamage\",\"message\":\"Not server, aborting\",\"data\":{{}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                // #endregion
                 Debug.LogWarning("[Star] ApplyDamage can only be called on server!");
                 return;
             }
@@ -163,8 +246,13 @@ namespace Gameplay.Map
                     _redDamage.Value += amount;
                 }
             }
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"H\",\"location\":\"Star.cs:ApplyDamage\",\"message\":\"Damage applied\",\"data\":{{\"starId\":{_id},\"blueDamageAfter\":{_blueDamage.Value},\"redDamageAfter\":{_redDamage.Value}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
 
         }
+
+        private const string LOG_PATH = "/home/ivan/Desktop/unity/War-Of-Constellations/.cursor/debug.log";
 
         /// <summary>
         /// ServerRpc для обработки клика по узлу
@@ -172,8 +260,14 @@ namespace Gameplay.Map
         [ServerRpc(RequireOwnership = false)]
         public void ClickStarServerRpc(Player player, int power)
         {
+            // #region agent log
+            try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"G\",\"location\":\"Star.cs:ClickStarServerRpc\",\"message\":\"ServerRpc received\",\"data\":{{\"starId\":{_id},\"player\":\"{player}\",\"power\":{power},\"isServer\":{IsServer.ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+            // #endregion
             if (power <= 0)
             {
+                // #region agent log
+                try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"G\",\"location\":\"Star.cs:ClickStarServerRpc\",\"message\":\"Invalid power\",\"data\":{{\"power\":{power}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
+                // #endregion
                 Debug.LogWarning($"[Star] Invalid click power: {power}");
                 return;
             }
