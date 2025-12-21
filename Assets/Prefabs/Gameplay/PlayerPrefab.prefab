@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3897957741886072674}
   - component: {fileID: 2458376576792317535}
   - component: {fileID: 7188812408858043550}
+  - component: {fileID: 9141918228556701927}
+  - component: {fileID: -2575168304139465114}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -66,6 +68,48 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &9141918228556701927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2861937489325416141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93d694c0168a9404b91507738699d4b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerColor: 0
+  _clickPower: 1
+  _goldGenerationInterval: 5
+  _goldPerStar: 1
+--- !u!114 &-2575168304139465114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2861937489325416141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 825598087cbcda0dca623c489f293597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _clickPowerBonus:
+    bonusName: 
+    description: 
+    cost: 0
+    maxLevel: 5
+    currentLevel: 0
+    powerIncreasePerLevel: 1
+  _goldGenerationBonus:
+    bonusName: 
+    description: 
+    cost: 0
+    maxLevel: 5
+    currentLevel: 0
+    goldMultiplierPerLevel: 0.2
 --- !u!1 &6922196139729868111
 GameObject:
   m_ObjectHideFlags: 0

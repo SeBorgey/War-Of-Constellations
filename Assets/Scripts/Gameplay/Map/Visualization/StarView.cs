@@ -21,6 +21,7 @@ namespace Gameplay.Map.Visualization
         private float _lastBlueProgress;
         private float _lastRedProgress;
         private float _baseScale;
+        private int _lastHP;
 
         // Cached default sprite (shared across all instances)
         private static Sprite _defaultCircleSprite;
@@ -152,17 +153,25 @@ namespace Gameplay.Map.Visualization
             float blueProgress = GetBlueProgress();
             float redProgress = GetRedProgress();
             StarState currentState = _star.State;
+            int currentHP = _star.HP;
 
-            bool needsUpdate = currentState != _lastState ||
+            bool needsColorUpdate = currentState != _lastState ||
                                !Mathf.Approximately(blueProgress, _lastBlueProgress) ||
                                !Mathf.Approximately(redProgress, _lastRedProgress);
 
-            if (needsUpdate)
+            if (needsColorUpdate)
             {
                 UpdateColor();
                 _lastState = currentState;
                 _lastBlueProgress = blueProgress;
                 _lastRedProgress = redProgress;
+            }
+
+            // Update label when HP changes
+            if (currentHP != _lastHP)
+            {
+                UpdateLabel();
+                _lastHP = currentHP;
             }
 
             // Apply pulse animation

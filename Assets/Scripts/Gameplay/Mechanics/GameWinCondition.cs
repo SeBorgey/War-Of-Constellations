@@ -6,12 +6,13 @@ using Gameplay.Map;
 namespace Gameplay.Mechanics
 {
     /// <summary>
-    /// Проверяет условия победы/поражения в игре
+    /// Проверяет условия победы/поражения в игре.
+    /// Работает только на сервере.
     /// </summary>
-    public class GameWinCondition : NetworkBehaviour
+    public class GameWinCondition : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private float _checkInterval = 2f; // Проверка каждые 2 секунды
+        [SerializeField] private float _checkInterval = 2f;
         [SerializeField] private GameMap _gameMap;
 
         public event Action<Player> OnPlayerWon;
@@ -24,14 +25,15 @@ namespace Gameplay.Mechanics
         {
             if (_gameMap == null)
             {
-                _gameMap = UnityEngine.Object.FindFirstObjectByType<GameMap>();
+                _gameMap = FindFirstObjectByType<GameMap>();
             }
         }
 
         private void Update()
         {
-            // Проверка условий победы должна происходить только на сервере
-            if (!IsServer || _gameEnded)
+            // Проверка только на сервере
+            var networkManager = NetworkManager.Singleton;
+            if (networkManager == null || !networkManager.IsServer || _gameEnded)
             {
                 return;
             }
@@ -125,19 +127,11 @@ namespace Gameplay.Mechanics
             _gameEnded = true;
             Debug.Log($"[GameWinCondition] Game ended! Winner: {winner}");
 
-            // Уведомляем всех клиентов о победе/поражении
-            NotifyGameEndClientRpc((int)winner);
-        }
-
-        [ClientRpc]
-        private void NotifyGameEndClientRpc(int winnerInt)
-        {
-            Player winner = (Player)winnerInt;
-            
-            // Определяем локального игрока
-            var networkManager = Unity.Netcode.NetworkManager.Singleton;
-            Player localPlayer = networkManager != null && networkManager.IsHost 
-                ? Player.Blue 
+            // Вызываем события локально (для хоста)
+            // Для клиента это нужно синхронизировать через другой механизм
+            var networkManager = NetworkManager.Singleton;
+            Player localPlayer = networkManager != null && networkManager.IsHost
+                ? Player.Blue
                 : Player.Red;
 
             if (winner == localPlayer)
@@ -156,7 +150,8 @@ namespace Gameplay.Mechanics
         {
             if (_gameMap == null)
             {
-                return 0;
+                _gameMap = FindFirstObjectByType<GameMap>();
+                if (_gameMap == null) return 0;
             }
 
             int count = 0;
