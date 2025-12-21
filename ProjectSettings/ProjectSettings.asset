@@ -664,11 +664,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: b2b27bdf-a313-4525-b264-cae6d38c1de3
+  cloudProjectId: 3d10f711-f48c-42a6-aee6-382b55269113
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: "War Of \u0421onstellations"
-  organizationId: igorpavilov78
+  projectName: "War Of \u0421onstellations (1)"
+  organizationId: unity_14c299d1a1bcecb9709e
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

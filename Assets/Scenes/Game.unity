@@ -120,6 +120,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &46212527
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 46212529}
+  - component: {fileID: 46212530}
+  m_Layer: 0
+  m_Name: GameplayManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &46212529
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46212527}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &46212530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46212527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee8a9b3bdaeb4fd09bd0d9099018cb57, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _checkInterval: 2
+  _gameMap: {fileID: 890104824}
 --- !u!1 &143066779
 GameObject:
   m_ObjectHideFlags: 0
@@ -217,6 +263,7 @@ GameObject:
   - component: {fileID: 594852241}
   - component: {fileID: 594852240}
   - component: {fileID: 594852244}
+  - component: {fileID: 594852245}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -362,6 +409,20 @@ MonoBehaviour:
   _useBounds: 1
   _boundsX: 1500
   _boundsY: 1000
+--- !u!114 &594852245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594852239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0475ea8a05e24e346b87cc40ea6168e5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _localPlayer: {fileID: 0}
+  _mainCamera: {fileID: 594852242}
 --- !u!1 &746410218
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,3 +822,4 @@ SceneRoots:
   - {fileID: 838494711}
   - {fileID: 746410220}
   - {fileID: 890104827}
+  - {fileID: 46212529}
