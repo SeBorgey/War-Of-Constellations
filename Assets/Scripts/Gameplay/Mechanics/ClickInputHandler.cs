@@ -49,11 +49,20 @@ namespace Gameplay.Mechanics
 
         private void FindLocalPlayer()
         {
+            var networkManager = NetworkManager.Singleton;
+            if (networkManager == null || !networkManager.IsClient)
+            {
+                return;
+            }
+
+            // Определяем цвет локального игрока: Host = Blue, Client = Red
+            Player localColor = networkManager.IsHost ? Player.Blue : Player.Red;
+
             var allControllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
             foreach (var controller in allControllers)
             {
-                // Находим контроллер, который принадлежит локальному игроку
-                if (controller.IsOwner)
+                // Находим контроллер с нужным цветом
+                if (controller.PlayerColor == localColor)
                 {
                     _localPlayer = controller;
                     Debug.Log($"[ClickInputHandler] Found local PlayerController: {controller.PlayerColor}");

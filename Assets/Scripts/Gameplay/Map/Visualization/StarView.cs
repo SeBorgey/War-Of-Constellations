@@ -21,7 +21,7 @@ namespace Gameplay.Map.Visualization
         private float _lastBlueProgress;
         private float _lastRedProgress;
         private float _baseScale;
-        private int _lastHP;
+        private int _lastHP = -1; // -1 чтобы гарантировать обновление при первом вызове
 
         // Cached default sprite (shared across all instances)
         private static Sprite _defaultCircleSprite;
@@ -189,6 +189,12 @@ namespace Gameplay.Map.Visualization
             UpdateColor();
             UpdateScale();
             UpdateLabel();
+
+            // Сбрасываем кэшированные значения чтобы Update мог их обновить
+            _lastHP = -1;
+            _lastState = StarState.White;
+            _lastBlueProgress = -1;
+            _lastRedProgress = -1;
         }
 
         private void UpdateColor()

@@ -22,11 +22,23 @@ namespace Gameplay.Map
     {
         [Header("Identification")]
         [SerializeField] private int _id;
-        [SerializeField] private int _constellationId = -1; // -1 if not part of a constellation
+
+        // Синхронизированные через NetworkVariable
+        private NetworkVariable<int> _constellationId = new NetworkVariable<int>(
+            -1,
+            readPerm: NetworkVariableReadPermission.Everyone,
+            writePerm: NetworkVariableWritePermission.Server);
 
         [Header("Star Data")]
-        [SerializeField] private Vector2 _coordinates;
-        [SerializeField] private int _size; // 1-5
+        // Синхронизированные через NetworkVariable
+        private NetworkVariable<Vector2> _coordinates = new NetworkVariable<Vector2>(
+            readPerm: NetworkVariableReadPermission.Everyone,
+            writePerm: NetworkVariableWritePermission.Server);
+
+        private NetworkVariable<int> _size = new NetworkVariable<int>(
+            1,
+            readPerm: NetworkVariableReadPermission.Everyone,
+            writePerm: NetworkVariableWritePermission.Server);
         
         [Header("UI")]
         [SerializeField] private TextMeshProUGUI _hpText; // Текст для отображения HP
@@ -48,9 +60,9 @@ namespace Gameplay.Map
 
         // Getters
         public int Id => _id;
-        public int ConstellationId => _constellationId;
-        public Vector2 Coordinates => _coordinates;
-        public int Size => _size;
+        public int ConstellationId => _constellationId.Value;
+        public Vector2 Coordinates => _coordinates.Value;
+        public int Size => _size.Value;
         public int HP => _hp.Value;
         public int BlueDamage => _blueDamage.Value;
         public int RedDamage => _redDamage.Value;
@@ -70,11 +82,11 @@ namespace Gameplay.Map
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            
+
             // #region agent log
             try { File.AppendAllText(LOG_PATH, $"{{\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"K\",\"location\":\"Star.cs:OnNetworkSpawn\",\"message\":\"Star spawned\",\"data\":{{\"starId\":{_id},\"isServer\":{IsServer.ToString().ToLower()},\"isClient\":{IsClient.ToString().ToLower()},\"isHost\":{IsHost.ToString().ToLower()}}},\"timestamp\":{System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}}}\n"); } catch { }
             // #endregion
-            
+
             // Находим TextMeshProUGUI если не установлен
             if (_hpText == null)
             {
@@ -84,14 +96,45 @@ namespace Gameplay.Map
                     Debug.LogWarning($"[Star] TextMeshProUGUI not found for Star {_id}!");
                 }
             }
-            
+
             // Подписываемся на изменения HP и урона для обновления текста
             _hp.OnValueChanged += OnHPChanged;
             _blueDamage.OnValueChanged += OnDamageChanged;
             _redDamage.OnValueChanged += OnDamageChanged;
-            
+
+            // Подписываемся на изменения координат и размера для обновления визуала
+            _coordinates.OnValueChanged += OnCoordinatesChanged;
+            _size.OnValueChanged += OnSizeChanged;
+
+            // Применяем текущие значения (важно для клиента, который получает уже установленные значения)
+            ApplySyncedValues();
+
             // Обновляем текст при спавне
             UpdateHPText();
+        }
+
+        private void OnCoordinatesChanged(Vector2 oldValue, Vector2 newValue)
+        {
+            transform.position = new Vector3(newValue.x, newValue.y, 0);
+        }
+
+        private void OnSizeChanged(int oldValue, int newValue)
+        {
+            UpdateScale();
+        }
+
+        private void ApplySyncedValues()
+        {
+            // Применяем синхронизированные координаты
+            if (_coordinates.Value != Vector2.zero)
+            {
+                transform.position = new Vector3(_coordinates.Value.x, _coordinates.Value.y, 0);
+            }
+
+            // Применяем размер
+            UpdateScale();
+
+            Debug.Log($"[Star] Applied synced values: coords={_coordinates.Value}, size={_size.Value}, hp={_hp.Value}");
         }
 
         public override void OnNetworkDespawn()
@@ -100,7 +143,9 @@ namespace Gameplay.Map
             _hp.OnValueChanged -= OnHPChanged;
             _blueDamage.OnValueChanged -= OnDamageChanged;
             _redDamage.OnValueChanged -= OnDamageChanged;
-            
+            _coordinates.OnValueChanged -= OnCoordinatesChanged;
+            _size.OnValueChanged -= OnSizeChanged;
+
             base.OnNetworkDespawn();
         }
 
@@ -151,18 +196,27 @@ namespace Gameplay.Map
 
         public void SetConstellationId(int constellationId)
         {
-            _constellationId = constellationId;
+            if (IsServer)
+            {
+                _constellationId.Value = constellationId;
+            }
         }
 
         public void SetCoordinates(Vector2 coordinates)
         {
-            _coordinates = coordinates;
+            if (IsServer)
+            {
+                _coordinates.Value = coordinates;
+            }
             transform.position = new Vector3(coordinates.x, coordinates.y, 0);
         }
 
         public void SetSize(int size)
         {
-            _size = Mathf.Clamp(size, 1, 5);
+            if (IsServer)
+            {
+                _size.Value = Mathf.Clamp(size, 1, 5);
+            }
             UpdateScale();
         }
 
@@ -192,7 +246,10 @@ namespace Gameplay.Map
                 _redDamage.Value = 0;
             }
             
-            _constellationId = -1;
+            _constellationId = new NetworkVariable<int>(
+            -1,
+            readPerm: NetworkVariableReadPermission.Everyone,
+            writePerm: NetworkVariableWritePermission.Server);
             
             // Находим TextMeshProUGUI если не установлен (для случаев, когда Initialize вызывается до OnNetworkSpawn)
             if (_hpText == null)
@@ -279,7 +336,7 @@ namespace Gameplay.Map
         private void UpdateScale()
         {
             // Scale the star based on its size (1-5)
-            float scale = 0.5f + (_size * 0.2f); // Size 1 = 0.7, Size 5 = 1.5
+            float scale = 0.5f + (_size.Value * 0.2f); // Size 1 = 0.7, Size 5 = 1.5
             transform.localScale = Vector3.one * scale;
         }
     }

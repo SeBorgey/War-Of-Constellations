@@ -80,6 +80,13 @@ namespace Network
             catch (Exception e)
             {
                 Debug.LogError($"[NetworkConnectionManager] Failed to initialize: {e.Message}");
+                // Log inner exceptions for Unity Services initialization failures
+                var inner = e.InnerException;
+                while (inner != null)
+                {
+                    Debug.LogError($"[NetworkConnectionManager] Inner exception: {inner.Message}");
+                    inner = inner.InnerException;
+                }
                 throw; // Перебрасываем исключение чтобы вызывающий код мог обработать
             }
         }

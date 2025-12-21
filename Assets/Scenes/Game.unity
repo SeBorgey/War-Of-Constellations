@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414729, b: 0.121078685, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -162,8 +162,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee8a9b3bdaeb4fd09bd0d9099018cb57, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _checkInterval: 2
   _gameMap: {fileID: 890104824}
 --- !u!1 &143066779
@@ -225,7 +225,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.06666667, g: 0.0627451, b: 0.078431375, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -419,8 +419,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0475ea8a05e24e346b87cc40ea6168e5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _localPlayer: {fileID: 0}
   _mainCamera: {fileID: 594852242}
 --- !u!1 &746410218
@@ -696,13 +696,17 @@ PrefabInstance:
       value: HUD Canvas
       objectReference: {fileID: 0}
     - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
+      propertyPath: m_text
+      value: 'Gold: 0'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
       propertyPath: m_fontSize
       value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: de17564317b633e48a2c0fc197aa5037, type: 2}
+      objectReference: {fileID: 11400000, guid: 3686d300c10028dd79311cb1a06dfdc4, type: 2}
     - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
       propertyPath: m_fontStyle
       value: 1
@@ -714,7 +718,7 @@ PrefabInstance:
     - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: -3511625715591477087, guid: de17564317b633e48a2c0fc197aa5037, type: 2}
+      objectReference: {fileID: -2476949148038710053, guid: 3686d300c10028dd79311cb1a06dfdc4, type: 2}
     - target: {fileID: 3896220169043773510, guid: 1b4ef1f946bfb644a931733a1ebbb275, type: 3}
       propertyPath: m_VerticalAlignment
       value: 4096

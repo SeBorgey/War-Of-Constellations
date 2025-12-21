@@ -30,11 +30,13 @@ namespace UI
         private PlayerController _bluePlayerController;
         private PlayerController _redPlayerController;
 
+        private bool _playerControllersInitialized = false;
+
         private void Start()
         {
             UpdateGold(0);
             InitializeNetworkTracking();
-            InitializePlayerController();
+            // PlayerController инициализация перемещена в Update для ожидания их спавна
         }
 
         private void OnEnable()
@@ -42,6 +44,15 @@ namespace UI
             if (_networkGameManager != null)
             {
                 SubscribeToNetworkEvents();
+            }
+        }
+
+        private void Update()
+        {
+            // Периодически пытаемся найти PlayerController, если они ещё не инициализированы
+            if (!_playerControllersInitialized)
+            {
+                TryInitializePlayerControllers();
             }
         }
 
@@ -56,35 +67,51 @@ namespace UI
             UnsubscribeFromPlayerController();
         }
 
-        private void InitializePlayerController()
+        private void TryInitializePlayerControllers()
         {
+            var networkManager = Unity.Netcode.NetworkManager.Singleton;
+            if (networkManager == null || !networkManager.IsClient)
+            {
+                return;
+            }
+
             // Ищем все PlayerController в сцене
             PlayerController[] allControllers = UnityEngine.Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-            
+
+            if (allControllers.Length == 0)
+            {
+                return; // Ещё нет контроллеров
+            }
+
+            bool foundBlue = false;
+            bool foundRed = false;
+
             foreach (var controller in allControllers)
             {
-                if (controller.PlayerColor == Player.Blue)
+                if (controller.PlayerColor == Player.Blue && _bluePlayerController == null)
                 {
                     _bluePlayerController = controller;
                     _bluePlayerController.OnGoldChanged += OnBlueGoldChanged;
                     UpdateBlueGold(_bluePlayerController.Gold);
                     Debug.Log("[GameplayHUD] Found Blue PlayerController");
+                    foundBlue = true;
                 }
-                else if (controller.PlayerColor == Player.Red)
+                else if (controller.PlayerColor == Player.Red && _redPlayerController == null)
                 {
                     _redPlayerController = controller;
                     _redPlayerController.OnGoldChanged += OnRedGoldChanged;
                     UpdateRedGold(_redPlayerController.Gold);
                     Debug.Log("[GameplayHUD] Found Red PlayerController");
+                    foundRed = true;
                 }
             }
 
-            // Определяем локального игрока
-            var networkManager = Unity.Netcode.NetworkManager.Singleton;
-            if (networkManager != null && networkManager.IsClient)
+            // Определяем локального игрока на основе роли в сети
+            if (_localPlayerController == null)
             {
+                // Host = Blue, Client = Red
                 _localPlayerController = networkManager.IsHost ? _bluePlayerController : _redPlayerController;
-                
+
                 if (_localPlayerController != null)
                 {
                     UpdatePlayerColor(_localPlayerController.PlayerColor);
@@ -92,10 +119,17 @@ namespace UI
                 }
             }
 
-            // Если есть только одно поле _goldText, используем его для комбинированного отображения
-            if (_goldText != null && _blueGoldText == null && _redGoldText == null)
+            // Считаем инициализацию завершённой когда нашли хотя бы локального игрока
+            if (_localPlayerController != null)
             {
-                UpdateCombinedGold();
+                _playerControllersInitialized = true;
+                Debug.Log("[GameplayHUD] PlayerControllers initialized successfully");
+
+                // Обновляем комбинированное поле если используется
+                if (_goldText != null && _blueGoldText == null && _redGoldText == null)
+                {
+                    UpdateCombinedGold();
+                }
             }
         }
 
